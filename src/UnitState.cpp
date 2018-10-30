@@ -46,11 +46,12 @@ bool UnitState::WasUpdated()
 
 void UnitState::UpdateThreat(bool hasThreat)
 {
-	for (int i = 0; i < CONSIDER_X_LAST_THREAT_CHECK - 1; i++)
-	{
-		m_recentThreat[i] = m_recentThreat[i + 1];
-	}
-	m_recentThreat[CONSIDER_X_LAST_THREAT_CHECK - 1] = hasThreat;
+	//for (int i = 0; i < CONSIDER_X_LAST_THREAT_CHECK - 1; i++)
+	//{
+	//	m_recentThreat[i] = m_recentThreat[i + 1];
+	//}
+	m_recentThreat[latest_index] = hasThreat;
+	latest_index = (latest_index + 1) % CONSIDER_X_LAST_THREAT_CHECK;
 }
 
 bool UnitState::WasAttacked()

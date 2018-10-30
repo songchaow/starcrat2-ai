@@ -13,6 +13,7 @@ class UnitState
 
 	static const int THREAT_CHECK_EVERY_X_FRAME = 5;
 	static const int CONSIDER_X_LAST_THREAT_CHECK = 3;
+	int latest_index = 0;
 	bool m_recentThreat[CONSIDER_X_LAST_THREAT_CHECK];
 public:
 
