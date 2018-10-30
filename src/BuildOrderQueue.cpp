@@ -93,17 +93,21 @@ BuildOrderItem BuildOrderQueue::queueItem(const BuildOrderItem & b)
     {
         m_queue.push_front(b);
     }
-    else
+    else if(b.priority > m_highestPriority) // not equal!
     {
         m_queue.push_back(b);
     }
-
+	else
+	{
+		m_queue.push_front(b);
+		if ((m_queue.size() > 1) && (b.priority <= m_highestPriority) && (b.priority > m_lowestPriority))
+		{
+			// sort the list in ascending order, putting highest priority at the top
+			std::stable_sort(m_queue.begin(), m_queue.end());
+		}
+	}
     // if the item is somewhere in the middle, we have to sort again
-    if ((m_queue.size() > 1) && (b.priority < m_highestPriority) && (b.priority > m_lowestPriority))
-    {
-        // sort the list in ascending order, putting highest priority at the top
-        std::sort(m_queue.begin(), m_queue.end());
-    }
+    
 
     // update the highest or lowest if it is beaten
     m_highestPriority = (b.priority > m_highestPriority) ? b.priority : m_highestPriority;
