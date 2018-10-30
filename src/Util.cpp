@@ -448,8 +448,8 @@ float Util::GetDps(const sc2::Unit * unit, CCBot & bot)
 
 float Util::GetDpsForTarget(const sc2::Unit * unit, const sc2::Unit * target, CCBot & bot)
 {
-    sc2::UnitTypeData unitTypeData = GetUnitTypeDataFromUnitTypeId(unit->unit_type, bot);
-    sc2::UnitTypeData targetTypeData = GetUnitTypeDataFromUnitTypeId(target->unit_type, bot);
+    const sc2::UnitTypeData &unitTypeData = GetUnitTypeDataFromUnitTypeId(unit->unit_type, bot);
+    const sc2::UnitTypeData &targetTypeData = GetUnitTypeDataFromUnitTypeId(target->unit_type, bot);
     sc2::Weapon::TargetType expectedWeaponType = target->is_flying ? sc2::Weapon::TargetType::Air : sc2::Weapon::TargetType::Ground;
     float dps = GetSpecialCaseDps(unit, bot);
 
@@ -773,7 +773,7 @@ sc2::UnitTypeID Util::GetUnitTypeIDFromName(const std::string & name, CCBot & bo
     return 0;
 }
 
-sc2::UnitTypeData Util::GetUnitTypeDataFromUnitTypeId(const sc2::UnitTypeID unitTypeId, CCBot & bot)
+const sc2::UnitTypeData& Util::GetUnitTypeDataFromUnitTypeId(const sc2::UnitTypeID unitTypeId, CCBot & bot)
 {
     return bot.Observation()->GetUnitTypeData()[unitTypeId];
 }

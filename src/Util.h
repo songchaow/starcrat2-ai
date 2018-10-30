@@ -48,7 +48,7 @@ namespace Util
     void            Normalize(sc2::Point2D& point);
     sc2::Point2D    Normalized(const sc2::Point2D& point);
     float           GetDotProduct(const sc2::Point2D& v1, const sc2::Point2D& v2);
-    sc2::UnitTypeData GetUnitTypeDataFromUnitTypeId(const sc2::UnitTypeID unitTypeId, CCBot & bot);
+    const sc2::UnitTypeData& GetUnitTypeDataFromUnitTypeId(const sc2::UnitTypeID unitTypeId, CCBot & bot);
 
     sc2::UnitTypeID GetUnitTypeIDFromName(const std::string & name, CCBot & bot);
     sc2::UpgradeID  GetUpgradeIDFromName(const std::string & name, CCBot & bot);
