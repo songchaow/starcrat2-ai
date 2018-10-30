@@ -641,7 +641,7 @@ void CombatCommander::checkUnitsState()
 				m_invisibleSighting[unit] = std::pair<CCPosition, uint32_t>(unit.getPosition(), m_bot.GetGameLoop());
 			}
 		}
-		else if (m_bot.GetGameLoop() % 5)
+		else if (m_bot.GetGameLoop() % 10 == 0)
 		{
 			auto threats = Util::getThreats(unit.getUnitPtr(), m_bot.GetEnemyUnits(), m_bot);
 			state.UpdateThreat(threats.size() != 0);
