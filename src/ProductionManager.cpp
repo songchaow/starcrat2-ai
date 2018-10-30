@@ -694,7 +694,8 @@ void ProductionManager::putImportantBuildOrderItemsInQueue()
 	if (!m_queue.contains(workerMetatype) && !m_queue.contains(MetaTypeEnum::OrbitalCommand))//check queue
 	{
 		int workerCount = m_bot.Workers().getNumWorkers();
-		if (baseCount * maxWorkersPerBase * 1.25 > workerCount < maxWorkers)//check worker count, max 27 per bases we have
+		//if (baseCount * maxWorkersPerBase * 1.25 > workerCount < maxWorkers)//check worker count, max 27 per bases we have
+		if(workerCount < baseCount * maxWorkersPerBase * 1.25 && workerCount < maxWorkers)//check worker count, max 27 per bases we have
 		{
 			if (currentStrategy != StrategyPostBuildOrder::WORKER_RUSH_DEFENSE)//check strategy
 			{
