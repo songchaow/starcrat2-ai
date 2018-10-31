@@ -202,7 +202,8 @@ void CombatCommander::updateHarassSquads()
 		if ((unit.getType().getAPIUnitType() == sc2::UNIT_TYPEID::TERRAN_REAPER
 			|| unit.getType().getAPIUnitType() == sc2::UNIT_TYPEID::TERRAN_HELLION
 			|| unit.getType().getAPIUnitType() == sc2::UNIT_TYPEID::TERRAN_VIKINGFIGHTER
-			|| unit.getType().getAPIUnitType() == sc2::UNIT_TYPEID::TERRAN_BANSHEE)
+			|| unit.getType().getAPIUnitType() == sc2::UNIT_TYPEID::TERRAN_BANSHEE
+			|| unit.getType().getAPIUnitType() == sc2::UNIT_TYPEID::TERRAN_THOR)
 			&& m_squadData.canAssignUnitToSquad(unit, harassSquad))
 		{
 			if (unit.getType().getAPIUnitType() == sc2::UNIT_TYPEID::TERRAN_HELLION)
@@ -641,7 +642,7 @@ void CombatCommander::checkUnitsState()
 				m_invisibleSighting[unit] = std::pair<CCPosition, uint32_t>(unit.getPosition(), m_bot.GetGameLoop());
 			}
 		}
-		else if (m_bot.GetGameLoop() % 10 == 0)
+		else if ((unit.canAttackAir() || unit.canAttackGround()) && m_bot.GetGameLoop() % 10==0) // skip non-attackers
 		{
 			auto threats = Util::getThreats(unit.getUnitPtr(), m_bot.GetEnemyUnits(), m_bot);
 			state.UpdateThreat(threats.size() != 0);

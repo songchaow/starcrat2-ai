@@ -291,7 +291,8 @@ void ProductionManager::putImportantBuildOrderItemsInQueue()
 		{
 			if (!m_ccShouldBeInQueue && !m_queue.contains(MetaTypeEnum::CommandCenter) && !m_queue.contains(MetaTypeEnum::OrbitalCommand))
 			{
-				m_queue.queueAsLowestPriority(MetaTypeEnum::CommandCenter, false);
+				//m_queue.queueAsLowestPriority(MetaTypeEnum::CommandCenter, false);
+				m_queue.queueItem(BuildOrderItem(MetaTypeEnum::CommandCenter, 2, false));
 				m_ccShouldBeInQueue = true;
 			}
 		}
@@ -300,30 +301,38 @@ void ProductionManager::putImportantBuildOrderItemsInQueue()
 		switch (currentStrategy)
 		{
 			case StrategyPostBuildOrder::TERRAN_REAPER :
+			case StrategyPostBuildOrder::TERRAN_ANTI_SPEEDLING:
 			{
-				if (productionScore < (float)baseCount)
-				{
+				/*if (productionScore < (float)baseCount)
+				{*/
 					bool hasPicked = false;
 					MetaType toBuild;
 					if (productionBuildingAddonCount < productionBuildingCount)
 					{//Addon
+						int factoryTechLabCount = m_bot.UnitInfo().getUnitTypeCount(Players::Self, MetaTypeEnum::FactoryTechLab.getUnitType(), false, true);
+						int factoryCount = m_bot.UnitInfo().getUnitTypeCount(Players::Self, MetaTypeEnum::Factory.getUnitType(), false, true);
 						int starportCount = m_bot.UnitInfo().getUnitTypeCount(Players::Self, MetaTypeEnum::Starport.getUnitType(), false, true);
 						int starportTechLabCount = m_bot.UnitInfo().getUnitTypeCount(Players::Self, MetaTypeEnum::StarportTechLab.getUnitType(), false, true);
 						if (starportCount > starportTechLabCount)
 						{
 							toBuild = MetaTypeEnum::StarportTechLab;
+							if(!m_queue.contains(toBuild))
+								m_queue.queueItem(BuildOrderItem(toBuild, 1, false));
 							hasPicked = true;
 						}
-
-						if (hasPicked && !m_queue.contains(toBuild))
+						if (factoryCount > factoryTechLabCount)
 						{
-							m_queue.queueItem(BuildOrderItem(toBuild, 1, false));
+							toBuild = MetaTypeEnum::FactoryTechLab;
+							if (!m_queue.contains(toBuild))
+								m_queue.queueItem(BuildOrderItem(toBuild, 1, false));
+							hasPicked = true;
 						}
 					}
 					if(!hasPicked)
 					{//Building
 						int barracksCount = m_bot.UnitInfo().getUnitTypeCount(Players::Self, MetaTypeEnum::Barracks.getUnitType(), false, true);
 						int starportCount = m_bot.UnitInfo().getUnitTypeCount(Players::Self, MetaTypeEnum::Starport.getUnitType(), false, true);
+						int factoryCount = m_bot.UnitInfo().getUnitTypeCount(Players::Self, MetaTypeEnum::Factory.getUnitType(), false, true);
 						if (barracksCount < baseCount * 2)
 						{
 							toBuild = MetaTypeEnum::Barracks;
@@ -334,13 +343,18 @@ void ProductionManager::putImportantBuildOrderItemsInQueue()
 							toBuild = MetaTypeEnum::Starport;
 							hasPicked = true;
 						}
+						else if (factoryCount < baseCount)
+						{
+							toBuild = MetaTypeEnum::Factory;
+							hasPicked = true;
+						}
 
 						if (hasPicked && !m_queue.contains(toBuild) && !m_queue.contains(MetaTypeEnum::CommandCenter))
 						{
 							m_queue.queueAsLowestPriority(toBuild, false);
 						}
 					}
-				}
+				//}
 
 				if (!m_queue.contains(MetaTypeEnum::BansheeCloak) && std::find(startedUpgrades.begin(), startedUpgrades.end(), MetaTypeEnum::BansheeCloak) == startedUpgrades.end())
 				{
@@ -367,6 +381,11 @@ void ProductionManager::putImportantBuildOrderItemsInQueue()
 					auto metaTypeInfantryWeapon = queueUpgrade(MetaTypeEnum::TerranInfantryWeaponsLevel1);
 				}
 
+				if (!m_queue.contains(MetaTypeEnum::Thor))
+				{
+					m_queue.queueItem(BuildOrderItem(MetaTypeEnum::Thor, 0, false));
+				}
+
 				if (!m_queue.contains(MetaTypeEnum::Banshee))
 				{
 					m_queue.queueItem(BuildOrderItem(MetaTypeEnum::Banshee, 0, false));
@@ -381,7 +400,7 @@ void ProductionManager::putImportantBuildOrderItemsInQueue()
 				}
 				break;
 			}
-			case StrategyPostBuildOrder::TERRAN_ANTI_SPEEDLING :
+			// before
 			{
 				// the strategy does not use the barracks, so we remove the barracks score
 				int barracksCount = m_bot.UnitInfo().getUnitTypeCount(Players::Self, MetaTypeEnum::Barracks.getUnitType(), false, true);
@@ -392,9 +411,10 @@ void ProductionManager::putImportantBuildOrderItemsInQueue()
 					int factoryTechLabCount = m_bot.UnitInfo().getUnitTypeCount(Players::Self, MetaTypeEnum::FactoryTechLab.getUnitType(), false, true);
 					int starportCount = m_bot.UnitInfo().getUnitTypeCount(Players::Self, MetaTypeEnum::Starport.getUnitType(), false, true);
 					int starportTechLabCount = m_bot.UnitInfo().getUnitTypeCount(Players::Self, MetaTypeEnum::StarportTechLab.getUnitType(), false, true);
-					if (factoryTechLabCount < 1 || starportCount > starportTechLabCount)
+					int factoryCount = m_bot.UnitInfo().getUnitTypeCount(Players::Self, MetaTypeEnum::Factory.getUnitType(), false, true);
+					if (factoryTechLabCount < factoryCount || starportCount > starportTechLabCount)
 					{//Addon
-						if (factoryTechLabCount < 1)
+						if (factoryTechLabCount < factoryCount)
 						{
 							toBuild = MetaTypeEnum::FactoryTechLab;
 							hasPicked = true;
@@ -412,8 +432,7 @@ void ProductionManager::putImportantBuildOrderItemsInQueue()
 					}
 					if (!hasPicked)
 					{//Building
-						int factoryCount = m_bot.UnitInfo().getUnitTypeCount(Players::Self, MetaTypeEnum::Factory.getUnitType(), false, true);
-						int starportCount = m_bot.UnitInfo().getUnitTypeCount(Players::Self, MetaTypeEnum::Starport.getUnitType(), false, true);
+						
 						if (factoryCount < baseCount)
 						{
 							toBuild = MetaTypeEnum::Factory;
@@ -438,15 +457,15 @@ void ProductionManager::putImportantBuildOrderItemsInQueue()
 					startedUpgrades.push_back(MetaTypeEnum::InfernalPreIgniter);
 				}
 
-				int hellionCount = m_bot.UnitInfo().getUnitTypeCount(Players::Self, MetaTypeEnum::Hellion.getUnitType(), true, true);
+				int thorCount = m_bot.UnitInfo().getUnitTypeCount(Players::Self, MetaTypeEnum::Thor.getUnitType(), true, true);
 				int bansheeCount = m_bot.UnitInfo().getUnitTypeCount(Players::Self, MetaTypeEnum::Banshee.getUnitType(), true, true);
 				int vikingCount = m_bot.UnitInfo().getUnitTypeCount(Players::Self, MetaTypeEnum::Viking.getUnitType(), true, true);
-				if(hellionCount + bansheeCount + vikingCount >= 5)
+				if(thorCount + bansheeCount + vikingCount >= 5)
 					auto vehiculeUpgrade = queueUpgrade(MetaTypeEnum::TerranVehicleAndShipArmorsLevel1);
 				
-				if (!m_queue.contains(MetaTypeEnum::Hellion))
+				if (!m_queue.contains(MetaTypeEnum::Thor))
 				{
-					m_queue.queueItem(BuildOrderItem(MetaTypeEnum::Hellion, 0, false));
+					m_queue.queueItem(BuildOrderItem(MetaTypeEnum::Thor, 0, false));
 				}
 
 				/*if (m_bot.Strategy().shouldProduceAntiAir() && !m_queue.contains(MetaTypeEnum::Marine))

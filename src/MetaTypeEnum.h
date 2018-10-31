@@ -34,6 +34,7 @@ class MetaTypeEnum
 		static MetaType Hellion;
 		static MetaType Banshee;
 		static MetaType Viking;
+		static MetaType Thor;
 			//Upgrades
 		static MetaType TerranInfantryWeaponsLevel1;
 		static MetaType TerranInfantryWeaponsLevel2;
