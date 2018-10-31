@@ -6,6 +6,9 @@
 #include <cstdio>
 #include <csignal>
 #include <cstdlib>
+#include <chrono>
+#include <fstream>
+#include <Windows.h>
 #include "StackWalker.h"
 
 #ifdef SC2API
@@ -65,18 +68,39 @@ void handler(int sig) {
 	exit(1);
 }
 
+std::vector<long long> durations;
+
+BOOL WINAPI consoleHandler(DWORD signal) {
+
+	if (signal == CTRL_C_EVENT)
+	{
+		std::ofstream timelog("timelog.txt");
+		for (auto duration : durations)
+			timelog << duration << std::endl;
+		timelog.close();
+	}
+	ExitProcess(0);
+	//return TRUE;
+}
+
+
+
 int main(int argc, char* argv[]) 
 {
-	signal(SIGABRT, handler);
-	signal(SIGABRT_COMPAT, handler);
-	signal(SIGBREAK, handler);
+	//signal(SIGABRT, handler);
+	//signal(SIGABRT_COMPAT, handler);
+	/*signal(SIGBREAK, handler);
 	signal(SIGFPE, handler);
 	signal(SIGILL, handler);
 	signal(SIGINT, handler);
-	signal(SIGSEGV, handler);
-	signal(SIGTERM, handler);
-	signal(SIG_ATOMIC_MAX, handler);
-	signal(SIG_ATOMIC_MIN, handler);
+	signal(SIGSEGV, handler);*/
+	//signal(SIGTERM, handler);
+	/*signal(SIG_ATOMIC_MAX, handler);
+	signal(SIG_ATOMIC_MIN, handler);*/
+	if (!SetConsoleCtrlHandler(consoleHandler, TRUE)) {
+		printf("\nERROR: Could not set control handler");
+		return 1;
+	}
 
 	sc2::Coordinator coordinator;
     
@@ -190,11 +214,15 @@ int main(int argc, char* argv[])
     // Start the game.
     coordinator.LaunchStarcraft();
     coordinator.StartGame(mapString);
-
+	auto now = std::chrono::system_clock::now();
     // Step forward the game simulation.
     while (true) 
     {
         coordinator.Update();
+		if(bot.GetCurrentFrame()%10==0)
+			durations.push_back((std::chrono::system_clock::now() - now).count());
+		now = std::chrono::system_clock::now();
+		std::cout << bot.GetCurrentFrame() << std::endl;
     }
     return 0;
 }
