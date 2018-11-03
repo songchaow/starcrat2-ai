@@ -203,7 +203,8 @@ void CombatCommander::updateHarassSquads()
 			|| unit.getType().getAPIUnitType() == sc2::UNIT_TYPEID::TERRAN_HELLION
 			|| unit.getType().getAPIUnitType() == sc2::UNIT_TYPEID::TERRAN_VIKINGFIGHTER
 			|| unit.getType().getAPIUnitType() == sc2::UNIT_TYPEID::TERRAN_BANSHEE
-			|| unit.getType().getAPIUnitType() == sc2::UNIT_TYPEID::TERRAN_THOR)
+			|| unit.getType().getAPIUnitType() == sc2::UNIT_TYPEID::TERRAN_THOR
+			|| unit.getType().getAPIUnitType() == sc2::UNIT_TYPEID::TERRAN_SIEGETANK)
 			&& m_squadData.canAssignUnitToSquad(unit, harassSquad))
 		{
 			if (unit.getType().getAPIUnitType() == sc2::UNIT_TYPEID::TERRAN_HELLION)

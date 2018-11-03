@@ -4,6 +4,7 @@
 #include "BuildOrder.h"
 #include "BuildOrderQueue.h"
 #include "Unit.h"
+#include <string>
 
 class CCBot;
 
@@ -22,7 +23,7 @@ class ProductionManager
 	MetaType supplyProviderType;
 	UnitType workerType;
 	MetaType workerMetatype;
-
+	std::string currentItem;
 	MetaType queueUpgrade(const MetaType type);
     Unit    getClosestUnitToPosition(const std::vector<Unit> & units, CCPosition closestTo) const;
     bool    canMakeNow(const Unit & producer, const MetaType & type);

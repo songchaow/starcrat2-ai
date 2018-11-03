@@ -248,7 +248,7 @@ void Squad::addUnitsToMicroManagers()
 
         if (unit.getType().isTank())
         {
-            tankUnits.push_back(unit);
+            rangedUnits.push_back(unit);
         }
         // TODO: detectors
         else if (unit.getType().isDetector() && !unit.getType().isBuilding())

@@ -30,6 +30,7 @@ MetaType MetaTypeEnum::Hellion;
 MetaType MetaTypeEnum::Banshee;
 MetaType MetaTypeEnum::Viking;
 MetaType MetaTypeEnum::Thor;
+MetaType MetaTypeEnum::SiegeTank;
 	//Upgrades
 MetaType MetaTypeEnum::TerranInfantryWeaponsLevel1;
 MetaType MetaTypeEnum::TerranInfantryWeaponsLevel2;
@@ -120,6 +121,7 @@ void MetaTypeEnum::Initialize(CCBot & m_bot)
 	MetaTypeEnum::Banshee = MetaType("Banshee", m_bot);
 	MetaTypeEnum::Viking = MetaType("VikingFighter", m_bot);
 	MetaTypeEnum::Thor = MetaType("Thor", m_bot);
+	MetaTypeEnum::SiegeTank = MetaType("SiegeTank", m_bot);
 		//Upgrades
 	MetaTypeEnum::TerranInfantryWeaponsLevel1 = MetaType("TerranInfantryWeaponsLevel1", m_bot);
 	MetaTypeEnum::TerranInfantryWeaponsLevel2 = MetaType("TerranInfantryWeaponsLevel2", m_bot);

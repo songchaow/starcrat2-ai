@@ -292,7 +292,10 @@ void ProductionManager::putImportantBuildOrderItemsInQueue()
 			if (!m_ccShouldBeInQueue && !m_queue.contains(MetaTypeEnum::CommandCenter) && !m_queue.contains(MetaTypeEnum::OrbitalCommand))
 			{
 				//m_queue.queueAsLowestPriority(MetaTypeEnum::CommandCenter, false);
-				m_queue.queueItem(BuildOrderItem(MetaTypeEnum::CommandCenter, 2, false));
+				if (baseCount >= 3)
+					m_queue.queueAsLowestPriority(MetaTypeEnum::CommandCenter, false);
+				else
+					m_queue.queueItem(BuildOrderItem(MetaTypeEnum::CommandCenter, 2, false));
 				m_ccShouldBeInQueue = true;
 			}
 		}
@@ -381,21 +384,21 @@ void ProductionManager::putImportantBuildOrderItemsInQueue()
 					auto metaTypeInfantryWeapon = queueUpgrade(MetaTypeEnum::TerranInfantryWeaponsLevel1);
 				}
 
-				if (!m_queue.contains(MetaTypeEnum::Thor))
+				if (!m_queue.contains(MetaTypeEnum::SiegeTank))
 				{
-					m_queue.queueItem(BuildOrderItem(MetaTypeEnum::Thor, 0, false));
+					m_queue.queueItem(BuildOrderItem(MetaTypeEnum::SiegeTank, 1, false));
 				}
 
 				if (!m_queue.contains(MetaTypeEnum::Banshee))
 				{
-					m_queue.queueItem(BuildOrderItem(MetaTypeEnum::Banshee, 0, false));
+					m_queue.queueItem(BuildOrderItem(MetaTypeEnum::Banshee, 1, false));
 				}
 
 				if (m_bot.Strategy().shouldProduceAntiAir() && !m_queue.contains(MetaTypeEnum::Viking))
 				{
 					if (vikingCount < 2 * bansheeCount)
 					{
-						m_queue.queueItem(BuildOrderItem(MetaTypeEnum::Viking, 0, false));
+						m_queue.queueItem(BuildOrderItem(MetaTypeEnum::Viking, 1, false));
 					}
 				}
 				break;
@@ -1324,7 +1327,7 @@ void ProductionManager::create(const Unit & producer, BuildOrderItem & item, CCT
     {
         return;
     }
-
+	currentItem = item.type.getName();
     // if we're dealing with a building
     if (item.type.isBuilding())
     {
@@ -1507,7 +1510,9 @@ void ProductionManager::drawProductionInformation()
 
     ss << m_queue.getQueueInformation() << "\n\n";
 	ss << "Free Mineral:     " << getFreeMinerals() << "\n";
-	ss << "Free Gas:         " << getFreeGas();
-	
+	ss << "Free Gas:         " << getFreeGas() << "\n";
+	ss << "Reserved Mineral: " << m_bot.Buildings().getReservedMinerals() << "\n";
+	ss << "Reserved Gas: " << m_bot.Buildings().getReservedGas() << "\n";
+	ss << "Current Item: " << currentItem << "\n";
     m_bot.Map().drawTextScreen(0.01f, 0.01f, ss.str(), CCColor(255, 255, 0));
 }
