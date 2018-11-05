@@ -287,6 +287,8 @@ void BuildingManager::constructAssignedBuildings()
 				m_reservedGas -= b.type.gasPrice();
 				b.bought = true;
 			}
+			if(b.buildingUnit.isValid())
+				b.status = BuildingStatus::UnderConstruction;
 			
 		}
 	}
@@ -323,8 +325,13 @@ void BuildingManager::checkForStartedConstruction()
 			{
 				if (b.buildingUnit.isValid())
 				{
-					std::cout << "Building mis-match somehow\n";
-					continue;
+					if (b.buildingUnit.getUnitPtr() != buildingStarted.getUnitPtr())
+					{
+						std::cout << "Building mis-match somehow\n";
+						continue;
+					}
+					else
+						std::cout << "Found prvious existing building\n";
 				}
 
 				// the resources should now be spent, so unreserve them if any building left out in the last step
@@ -387,7 +394,7 @@ void BuildingManager::checkForDeadTerranBuilders()
 		}
 
 		// if the building has a builder that died or that is not a builder anymore because of a bug
-		if (b.builderUnit.isValid() && (!b.builderUnit.isAlive() || m_bot.Workers().getWorkerData().getWorkerJob(b.builderUnit) != WorkerJobs::Build))
+		if (b.builderUnit.isValid() && (!b.builderUnit.isAlive() || m_bot.Workers().getWorkerData().getWorkerJob(b.builderUnit) != WorkerJobs::Build) && b.buildingUnit.isValid() && !b.buildingUnit.isCompleted())
 		{
 			// grab the worker unit from WorkerManager which is closest to this final position
 			Unit builderUnit = m_bot.Workers().getBuilder(b);
