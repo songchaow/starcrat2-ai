@@ -23,6 +23,7 @@ public:
     int             lastOrderFrame;
     bool            buildCommandGiven;
     bool            underConstruction;
+	bool			bought; // have we spent resources on this building
 
     Building();
 

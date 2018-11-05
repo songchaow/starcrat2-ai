@@ -278,6 +278,17 @@ void BuildingManager::constructAssignedBuildings()
 				b.buildCommandGiven = true;
 			}
 		}
+		else
+		{
+			if (!b.bought)
+			{
+				// resources have been spent now, release them from reserved resources
+				m_reservedMinerals -= b.type.mineralPrice();
+				m_reservedGas -= b.type.gasPrice();
+				b.bought = true;
+			}
+			
+		}
 	}
 }
 
@@ -316,9 +327,14 @@ void BuildingManager::checkForStartedConstruction()
 					continue;
 				}
 
-				// the resources should now be spent, so unreserve them
-				m_reservedMinerals -= buildingStarted.getType().mineralPrice();
-				m_reservedGas -= buildingStarted.getType().gasPrice();
+				// the resources should now be spent, so unreserve them if any building left out in the last step
+				if (!b.bought)
+				{
+					m_reservedMinerals -= buildingStarted.getType().mineralPrice();
+					m_reservedGas -= buildingStarted.getType().gasPrice();
+					b.bought = true;
+				}
+				
 
                 // flag it as started and set the buildingUnit
                 b.underConstruction = true;

@@ -11,6 +11,7 @@ Building::Building()
     , status            (BuildingStatus::Unassigned)
     , buildCommandGiven (false)
     , underConstruction (false) 
+	, bought			(false)
 {} 
 
 // constructor we use most often
@@ -25,6 +26,7 @@ Building::Building(UnitType t, CCTilePosition desired)
     , status            (BuildingStatus::Unassigned)
     , buildCommandGiven (false)
     , underConstruction (false) 
+	, bought			(false)
 {}
 
 // equals operator
