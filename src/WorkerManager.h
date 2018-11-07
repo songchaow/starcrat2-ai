@@ -44,12 +44,12 @@ public:
     int  getNumMineralWorkers();
     int  getNumGasWorkers();
     int  getNumWorkers();
-	std::set<Unit> WorkerManager::getWorkers() const;
-	WorkerData WorkerManager::getWorkerData() const;
+	std::set<Unit> getWorkers() const;
+	WorkerData getWorkerData() const;
     bool isWorkerScout(Unit worker) const;
     bool isFree(Unit worker) const;
     bool isBuilder(Unit worker) const;
-	bool WorkerManager::isReturningCargo(Unit worker) const;
+	bool isReturningCargo(Unit worker) const;
 
     Unit getBuilder(Building & b, bool setJobAsBuilder = true) const;
 	Unit getGasWorker(Unit refinery) const;
@@ -59,6 +59,6 @@ public:
 	Unit getClosestMineralWorkerTo(const CCPosition & pos, float minHpPercentage = 0.f) const;
 	Unit getClosestMineralWorkerTo(const CCPosition & pos, CCUnitID workerToIgnore, float minHpPercentage = 0.f) const;
 	Unit getClosest(const Unit unit, const std::list<Unit> units) const;
-	//std::list<Unit> WorkerManager::orderByDistance(const std::list<Unit> units, CCPosition pos, bool closestFirst);
+	//std::list<Unit> orderByDistance(const std::list<Unit> units, CCPosition pos, bool closestFirst);
 };
 

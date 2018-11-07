@@ -92,9 +92,9 @@ public:
     int GetGas() const;
     Unit GetUnit(const CCUnitID & tag) const;
     const std::vector<Unit> & GetUnits() const;
-	std::map<sc2::Tag, Unit> & CCBot::GetAllyUnits();
-	std::map<sc2::Tag, Unit> CCBot::GetAllyUnits(sc2::UNIT_TYPEID type);
-	std::map<sc2::Tag, Unit> & CCBot::GetEnemyUnits();
+	std::map<sc2::Tag, Unit> & GetAllyUnits();
+	std::map<sc2::Tag, Unit> GetAllyUnits(sc2::UNIT_TYPEID type);
+	std::map<sc2::Tag, Unit> & GetEnemyUnits();
 	uint32_t GetLastStepSeenUnit(sc2::Tag tag);
     const std::vector<CCPosition> & GetStartLocations() const;
 };
