@@ -1,6 +1,7 @@
 #include "ProductionManager.h"
 #include "Util.h"
 #include "CCBot.h"
+#include <iostream>
 
 ProductionManager::ProductionManager(CCBot & bot)
     : m_bot             (bot)
@@ -120,8 +121,8 @@ void ProductionManager::manageBuildOrderQueue()
 
     // the current item to be used
     BuildOrderItem currentItem = m_queue.getHighestPriorityItem();
-
-    // while there is still something left in the queue
+    
+	// while there is still something left in the queue
     while (!m_queue.isEmpty())
     {
 		//check if we have the prerequirements.
@@ -203,7 +204,7 @@ void ProductionManager::manageBuildOrderQueue()
 					break;
 				}				
 			}
-
+		
 			// if we can make the current item
 			if (producer.isValid() && canMakeNow(producer, currentItem.type))
 			{
@@ -706,7 +707,7 @@ void ProductionManager::putImportantBuildOrderItemsInQueue()
 				break;
 			default:
 			{
-				assert("This strategy doesn't exist.");
+				assert(("This strategy doesn't exist.",false));
 			}
 		}
 	}
@@ -910,6 +911,8 @@ bool ProductionManager::currentlyHasRequirement(MetaType currentItem)
 						{
 							return m_bot.UnitInfo().getUnitTypeCount(Players::Self, MetaTypeEnum::StarportTechLab.getUnitType(), true, true) >= 0;
 						}
+						default:
+							;
 					}
 				}
 				default:
@@ -999,6 +1002,8 @@ Unit ProductionManager::getProducer(const MetaType & type, CCPosition closestTo)
 								break;
 							}
 						}
+						default:
+							;
 					}
 				}
 				if (unit.isAddonTraining() || !addonIsReactor)
@@ -1024,6 +1029,8 @@ Unit ProductionManager::getProducer(const MetaType & type, CCPosition closestTo)
 			{
 				continue;
 			}
+			default:
+				;
 		}
 
         // TODO: if unit is not powered continue
@@ -1321,7 +1328,7 @@ Unit ProductionManager::getClosestUnitToPosition(const std::vector<Unit> & units
 }
 
 // this function will check to see if all preconditions are met and then create a unit
-void ProductionManager::create(const Unit & producer, BuildOrderItem & item, CCTilePosition position)
+void ProductionManager::create(const Unit & producer, const BuildOrderItem & item, CCTilePosition position)
 {
     if (!producer.isValid())
     {
@@ -1486,7 +1493,7 @@ bool ProductionManager::meetsReservedResources(const MetaType & type)
 // return whether or not we meet resources, including building reserves
 bool ProductionManager::meetsReservedResourcesWithExtra(const MetaType & type)
 {
-	assert("Addons cannot use extra ressources",m_bot.Data(type).isAddon);
+	assert(("Addons cannot use extra ressources",!m_bot.Data(type).isAddon));
 	return (m_bot.Data(type).mineralCost <= getFreeMinerals() + getExtraMinerals()) && (m_bot.Data(type).gasCost <= getFreeGas() + getExtraGas());
 }
 

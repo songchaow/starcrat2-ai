@@ -60,7 +60,7 @@ message ("SC2Api_INCLUDE_DIRS=${SC2Api_INCLUDE_DIRS}")
 set(SC2Api_LIBRARIES "")
 
 # Search for SC2Api libraries.
-foreach(COMPONENT sc2api sc2lib sc2utils sc2protocol civetweb protobuf)
+foreach(COMPONENT sc2api sc2lib sc2utils sc2protocol sc2renderer SDL2 civetweb protobuf)
     string(TOUPPER ${COMPONENT} UPPERCOMPONENT)
 
     find_library(SC2Api_${UPPERCOMPONENT}_LIB

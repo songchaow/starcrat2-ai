@@ -47,7 +47,7 @@ const Strategy & StrategyManager::getCurrentStrategy() const
     return (*strategy).second;
 }
 
-const int & StrategyManager::getCurrentStrategyPostBuildOrder() const
+const int StrategyManager::getCurrentStrategyPostBuildOrder() const
 {
 	//return StrategyPostBuildOrder::NO_STRATEGY;
 	/*if (m_shouldProduceAntiAir)

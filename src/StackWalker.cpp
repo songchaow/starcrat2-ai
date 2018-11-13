@@ -81,7 +81,7 @@
  *   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  **********************************************************************/
-
+#if defined(_MSC_VER)
 #include "StackWalker.h"
 
 #include <stdio.h>
@@ -1470,3 +1470,4 @@ void StackWalker::OnOutput(LPCSTR buffer)
   OutputDebugStringA(buffer);
   std::cerr << buffer << std::endl;
 }
+#endif

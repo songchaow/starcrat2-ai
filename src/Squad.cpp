@@ -298,7 +298,7 @@ bool Squad::needsToRetreat()
 	float meleeSpeed = m_meleeManager.getAverageSquadSpeed() * m_meleeManager.getUnits().size();
 	float rangedSpeed = m_rangedManager.getAverageSquadSpeed() * m_rangedManager.getUnits().size();
 	float averageSpeed = (meleeSpeed + rangedSpeed) / m_units.size();
-	std::vector<Unit>& visibleTargets = calcVisibleTargets();
+	std::vector<Unit> visibleTargets = calcVisibleTargets();
 	float averageTargetsSpeed = Util::getAverageSpeedOfUnits(visibleTargets, m_bot);
 	//TODO also consider the range (if targets are not in range, we should still back)
 	if (averageSpeed < averageTargetsSpeed * 0.90f)	//Even though the enemy units are a little bit faster, maybe we should still back
@@ -340,7 +340,7 @@ bool Squad::needsToRegroup()
 	}
 
     //do not regroup if targets are nearby (nor fleeing, since the targets are updated only whan having an Attack order)
-    std::vector<Unit>& targets = calcVisibleTargets();
+    std::vector<Unit> targets = calcVisibleTargets();
     if (!targets.empty())
         return false;
 

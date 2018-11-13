@@ -60,7 +60,7 @@ public:
     StrategyManager(CCBot & bot);
 
     const Strategy & getCurrentStrategy() const;
-	const int & getCurrentStrategyPostBuildOrder() const;
+	const int getCurrentStrategyPostBuildOrder() const;
     bool scoutConditionIsMet() const;
     bool attackConditionIsMet() const;
     void onStart();

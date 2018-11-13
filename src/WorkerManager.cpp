@@ -592,7 +592,7 @@ Unit WorkerManager::getGasWorker(Unit refinery) const
     return getClosestMineralWorkerTo(refinery.getPosition());
 }
 
-Unit WorkerManager::getDepotAtBasePosition(CCPosition basePosition) const
+const Unit & WorkerManager::getDepotAtBasePosition(CCPosition basePosition) const
 {
 	for (auto & unit : m_bot.UnitInfo().getUnits(Players::Self))
 	{

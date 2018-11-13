@@ -8,18 +8,18 @@
 #include <cstdlib>
 #include <chrono>
 #include <fstream>
-#include <Windows.h>
 #include "StackWalker.h"
 
+#define LINUX_USE_SOFTWARE_RENDER 0
 #ifdef SC2API
-
 #include "sc2utils/sc2_manage_process.h"
 #include "sc2api/sc2_api.h"
 #include <string>
 #ifdef _WIN32
+    #include <Windows.h>
 	#include <direct.h>
 	#define getcwd _getcwd // stupid MSFT "deprecation" warning
-#elif
+#else
 	#include <unistd.h>
 #endif
 
@@ -50,26 +50,9 @@ std::string getexepath()
 	return s_cwd;
 }
 
-void handler(int sig) {
-	time_t t;
-	char buffer[80];
-	time(&t);
-	struct tm *timeinfo = localtime(&t);
-	strftime(buffer, sizeof(buffer), "%d-%m-%Y %H:%M:%S", timeinfo);
-	std::string str(buffer);
-	std::cerr << str << std::endl;
-
-	// print out all the frames to stderr
-	fprintf(stderr, "Error: signal %d:\n", sig);
-
-	StackWalker sw;
-	sw.ShowCallstack();
-
-	exit(1);
-}
-
 std::vector<long long> durations;
 
+#ifdef _WIN32
 BOOL WINAPI consoleHandler(DWORD signal) {
 
 	if (signal == CTRL_C_EVENT)
@@ -82,25 +65,17 @@ BOOL WINAPI consoleHandler(DWORD signal) {
 	ExitProcess(0);
 	//return TRUE;
 }
-
+#endif
 
 
 int main(int argc, char* argv[]) 
 {
-	//signal(SIGABRT, handler);
-	//signal(SIGABRT_COMPAT, handler);
-	/*signal(SIGBREAK, handler);
-	signal(SIGFPE, handler);
-	signal(SIGILL, handler);
-	signal(SIGINT, handler);
-	signal(SIGSEGV, handler);*/
-	//signal(SIGTERM, handler);
-	/*signal(SIG_ATOMIC_MAX, handler);
-	signal(SIG_ATOMIC_MIN, handler);*/
+    #ifdef _WIN32
 	if (!SetConsoleCtrlHandler(consoleHandler, TRUE)) {
 		printf("\nERROR: Could not set control handler");
 		return 1;
 	}
+    #endif
 
 	sc2::Coordinator coordinator;
     
@@ -135,6 +110,27 @@ int main(int argc, char* argv[])
     sc2::Difficulty enemyDifficulty = sc2::Difficulty::Easy;
     bool PlayVsItSelf = false;
     bool PlayerOneIsHuman = false;
+    bool render = true; // TODO: read from config file
+
+    #ifndef _WIN32
+    const int kMapX = 1000;
+    const int kMapY = 750;
+    const int kMiniMapX = 300;
+    const int kMiniMapY = 300;
+    if(render)
+    {
+        sc2::RenderSettings settings(kMapX, kMapY, kMiniMapX, kMiniMapY);
+        coordinator.SetRender(settings);
+    }
+    #endif
+    #if defined(__linux__)
+    #if LINUX_USE_SOFTWARE_RENDER
+        coordinator.AddCommandLine("-osmesapath /usr/lib/x86_64-linux-gnu/libOSMesa.so");
+    #else
+        coordinator.AddCommandLine("-eglpath libEGL.so");
+    #endif
+    #endif
+
 
     if (j.count("SC2API") && j["SC2API"].is_object())
     {
@@ -222,7 +218,6 @@ int main(int argc, char* argv[])
 		if(bot.GetCurrentFrame()%10==0)
 			durations.push_back((std::chrono::system_clock::now() - now).count());
 		now = std::chrono::system_clock::now();
-		std::cout << bot.GetCurrentFrame() << std::endl;
     }
     return 0;
 }

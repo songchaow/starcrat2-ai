@@ -37,9 +37,10 @@ namespace Assert
         lastErrorMessage = messageBuffer;
 
         std::cerr << ss.str();
-
+        #if defined(_MSC_VER)
 		StackWalker sw;
 		sw.ShowCallstack();
+        #endif
     }
 }
 

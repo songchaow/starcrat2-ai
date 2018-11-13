@@ -1,5 +1,11 @@
 #include "CCBot.h"
+#include "sc2renderer/sc2_renderer.h"
 #include "Util.h"
+
+const int kMapX = 1000;
+const int kMapY = 750;
+const int kMiniMapX = 300;
+const int kMiniMapY = 300;
 
 CCBot::CCBot()
     : m_map(*this)
@@ -14,7 +20,12 @@ CCBot::CCBot()
 }
 
 void CCBot::OnGameFullStart() {}//end?
-void CCBot::OnGameEnd() {}//Start
+void CCBot::OnGameEnd() //Start
+{
+#ifndef _WIN32
+	sc2::renderer::Shutdown();
+#endif
+}
 void CCBot::OnUnitDestroyed(const sc2::Unit*) {}
 void CCBot::OnUnitCreated(const sc2::Unit*) {}
 void CCBot::OnUnitIdle(const sc2::Unit*) {}
@@ -32,8 +43,11 @@ void CCBot::OnNuclearLaunchDetected() {}
 
 void CCBot::OnGameStart() //full start
 {
-    m_config.readConfigFile();
+#ifndef _WIN32
+	sc2::renderer::Initialize("Rendered", 50, 50, kMiniMapX + kMapX, std::max(kMiniMapY, kMapY));
+#endif
 
+    m_config.readConfigFile();
     // add all the possible start locations on the map
 #ifdef SC2API
     for (auto & loc : Observation()->GetGameInfo().enemy_start_locations)
@@ -80,6 +94,21 @@ void CCBot::OnGameStart() //full start
 
 void CCBot::OnStep()
 {
+#ifndef _WIN32
+	const SC2APIProtocol::Observation* observation = Observation()->GetRawObservation();
+	const SC2APIProtocol::ObservationRender& render = observation->render_data();
+
+	const SC2APIProtocol::ImageData& minimap = render.minimap();
+	sc2::renderer::ImageRGB(&minimap.data().data()[0], minimap.size().x(), minimap.size().y(), 0, std::max(kMiniMapY, kMapY) - kMiniMapY);
+
+	const SC2APIProtocol::ImageData& map = render.map();
+	sc2::renderer::ImageRGB(&map.data().data()[0], map.size().x(), map.size().y(), kMiniMapX, 0);
+
+	sc2::renderer::Render();
+#endif // !_WIN32
+
+	
+
 	m_gameLoop = Observation()->GetGameLoop();
 
 	checkKeyState();
@@ -109,6 +138,7 @@ void CCBot::checkKeyState()
 	{
 		return;
 	}
+	#if defined(_MSC_VER)
 	if (GetAsyncKeyState(VK_DELETE))
 	{
 		printf("Pausing...");
@@ -137,6 +167,7 @@ void CCBot::checkKeyState()
 	{
 		m_config.DrawReservedBuildingTiles = !m_config.DrawReservedBuildingTiles;
 	}
+	#endif
 }
 #pragma optimize( "checkKeyState", on )
 

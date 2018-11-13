@@ -1,5 +1,6 @@
 #pragma once
 
+#include <list>
 #include "WorkerData.h"
 
 class Building;
@@ -53,7 +54,7 @@ public:
 
     Unit getBuilder(Building & b, bool setJobAsBuilder = true) const;
 	Unit getGasWorker(Unit refinery) const;
-	Unit getDepotAtBasePosition(CCPosition basePosition) const;
+	const Unit & getDepotAtBasePosition(CCPosition basePosition) const;
 	int  getWorkerCountAtBasePosition(CCPosition basePosition) const;
     Unit getClosestDepot(Unit worker) const;
 	Unit getClosestMineralWorkerTo(const CCPosition & pos, float minHpPercentage = 0.f) const;

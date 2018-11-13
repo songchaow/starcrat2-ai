@@ -5,7 +5,12 @@ project(CommandCenter)
 get_filename_component(SCPARENT_DIR ${CMAKE_CURRENT_SOURCE_DIR} DIRECTORY)
 
 set(CMAKE_INCLUDE_PATH ${SCPARENT_DIR}/s2client-api/project/include)
-set(CMAKE_LIBRARY_PATH ${SCPARENT_DIR}/s2client-api/project/lib)
+if(UNIX)
+    set(CMAKE_LIBRARY_PATH ${SCPARENT_DIR}/s2client-api/build-linux/bin)
+endif(UNIX)
+if(WIN32)
+    set(CMAKE_LIBRARY_PATH ${SCPARENT_DIR}/s2client-api/project/lib)
+endif(WIN32)
 # Specify output directories.
 set(EXECUTABLE_OUTPUT_PATH "${PROJECT_BINARY_DIR}/bin")
 
