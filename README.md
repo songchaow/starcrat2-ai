@@ -1,8 +1,50 @@
-# MicroMachine: AI Bot for StarCraft II
+# MicroMachine Refined Version
+
+This repository is a refined version of [RaphaelRoyerRivard's MicroMachine](https://github.com/RaphaelRoyerRivard/MicroMachine). Main improvements include:
+
+- Add build support for Linux.
+- Add prebuilt `sc2client-api` into repository for convenience. So most dependencies are self-contained now.
+- Optimize codes where there's a performance bottleneck. (see commit a3bd5e8 and 7140d52)
+- Fix incorrect inserting logic in `BuildOrderSequence`. (see commit f6e63e1)
+- Improve building state management. Some inconsistent states(like buildings that are actually being constructed are sometimes still marked as `Assigned`. ) are gone now. (see commit a0ed44a)
+
+## How to build and run
+
+> You only need CMake and a Statecraft 2 distribution to build the project. Other dependencies are self-contained in the repo for convenience.
+>
+> Linux distribution of Starcraft 2 can be download [here](https://github.com/Blizzard/s2client-proto#downloads).
+
+###Linux (tested in Ubuntu 18.04)
+
+**Build**
+
+After cloning this repository, execute these commands to build the bot.
+
+```bash
+mkdir build_linux && cd build_linux# or other names you like
+cmake ..
+make -jn # n is count of your processsor threads -1.
+```
+
+If no error occurs, The `CommandCenter` executable will be generated in `build_linux/bin`.
+
+**Run**
+
+- Copy `BotConfig.txt` in the root directory into `build_linux/bin`.
+
+- Then execute `CommandCenter` with `-e` to specify the path to StarCraft 2 launcher.
+
+  > The StarCraft 2 launcher is located at: `SC2_distribution_root_directory/Versions/Base60321/SC2_x64`.
+
+- Feel the power of AI Bot :).
+
+---
+
+**MicroMachine: AI Bot for StarCraft II**
 
 This bot is built on top of CommandCenter, a popular C++ bot that is great for beginners. The main improvements over CommandCenter is the micro management of units in combat, notably the focus fire, dancing and kiting. The current strategy is to rush with Marines with the Terran race and hope that the great micro management will be enough to overcome the defenses of the enemy early in the game.
 
-# CommandCenter: AI Bot for Broodwar and Starcraft II
+**CommandCenter: AI Bot for Broodwar and Starcraft II**
 
 CommandCenter is a StarCraft AI bot that can play both StarCraft: Broodwar and StarCraft 2.
 
