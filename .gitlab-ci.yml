@@ -1,0 +1,10 @@
+configure_and_build:
+  stage: build
+  script:
+    - mkdir build && cd build
+    - cmake ..
+    - make -j6
+  artifacts:
+    paths:
+    - build
+    expire_in: 1 day
