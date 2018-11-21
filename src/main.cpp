@@ -1,3 +1,4 @@
+#ifndef COMPILE_TO_LIBRARY
 #include "Common.h"
 #include "CCBot.h"
 #include "JSONTools.h"
@@ -318,4 +319,5 @@ int main(int argc, char * argv[])
 
 	return 0;
 }
+#endif
 #endif

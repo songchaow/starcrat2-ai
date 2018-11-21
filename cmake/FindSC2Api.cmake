@@ -53,6 +53,7 @@ set(SC2Api_INCLUDE_DIRS
     "${SC2Api_INCLUDE_DIR}"
     "${SC2Api_Proto_INCLUDE_DIR}"
     "${SC2Api_Protobuf_INCLUDE_DIR}"
+    ${CMAKE_INCLUDE_PATH}
 )
 
 message ("SC2Api_INCLUDE_DIRS=${SC2Api_INCLUDE_DIRS}")
