@@ -68,7 +68,7 @@ void CombatCommander::onFrame(const std::vector<Unit> & combatUnits)
 
     m_combatUnits = combatUnits;
 
-    m_squadData.onFrame();
+    /*m_squadData.onFrame();
 
     if (isSquadUpdateFrame())
     {
@@ -81,7 +81,7 @@ void CombatCommander::onFrame(const std::vector<Unit> & combatUnits)
     }
 
 	lowPriorityCheck();
-	checkUnitsState();
+	checkUnitsState();*/
 }
 
 void CombatCommander::lowPriorityCheck()

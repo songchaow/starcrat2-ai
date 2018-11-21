@@ -66,7 +66,7 @@ void GameCommander::handleUnitAssignments()
     setValidUnits();
 
     // set each type of unit
-    setScoutUnits();
+    // setScoutUnits();
     setCombatUnits();
 }
 
