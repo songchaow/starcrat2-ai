@@ -25,6 +25,7 @@ void Region::setAllUnits()
 		goodUnits.push_back(unit);
 	}
 
+
 	m_units = goodUnits;
 }
 
