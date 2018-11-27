@@ -31,7 +31,7 @@ void MeleeManager::executeMicro()
     for (auto & meleeUnit : meleeUnits)
     {
         BOT_ASSERT(meleeUnit.isValid(), "melee unit is null");
-
+		if (meleeUnit.executeMacro()) continue; ////new;
         // if the order is to attack or defend
         if (m_order.getType() == SquadOrderTypes::Attack || m_order.getType() == SquadOrderTypes::Defend)
         {

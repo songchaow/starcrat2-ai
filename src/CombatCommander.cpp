@@ -1,6 +1,7 @@
 #include "CombatCommander.h"
 #include "Util.h"
 #include "CCBot.h"
+#include "stdlib.h" ////new
 
 const size_t IdlePriority = 0;
 const size_t BackupPriority = 1;
@@ -30,7 +31,16 @@ CombatCommander::CombatCommander(CCBot & bot)
 
 void CombatCommander::onStart()
 {
-    m_squadData.clearSquadData();
+	region_width = m_bot.Map().width() / 3.0;
+	region_height = m_bot.Map().height() / 3.0;
+	float x_start, y_start;
+	for (int i = 0; i < 9; i++) {
+		x_start = (i % 3) * region_width;
+		y_start = (i / 3) * region_height;
+		m_regions.insert(std::pair<std::string, Region>(regions_name[i], Region(regions_name[i], region_width, region_height, x_start, y_start,m_bot)));
+	}
+	m_regions.insert(std::pair<std::string, Region>(regions_name[9], Region(regions_name[9], m_bot.Map().width(), m_bot.Map().height(), 0.0, 0.0, m_bot)));
+	m_squadData.clearSquadData();
 
     // the squad that consists of units waiting for the squad to be big enough to begin the main attack
     SquadOrder idleOrder(SquadOrderTypes::Idle, CCPosition(), DefaultOrderRadius, "Prepare for battle");
@@ -69,9 +79,10 @@ void CombatCommander::onFrame(const std::vector<Unit> & combatUnits)
     m_combatUnits = combatUnits;
 
     m_squadData.onFrame();
-
+	
     if (isSquadUpdateFrame())
     {
+		updateAllRegionsInfo();  ////new
         updateIdleSquad();
         updateScoutDefenseSquad();
         updateDefenseSquads();
@@ -80,8 +91,70 @@ void CombatCommander::onFrame(const std::vector<Unit> & combatUnits)
         updateBackupSquads();
     }
 
+	auto frame = m_bot.GetGameLoop();
+	CCPosition pos = m_bot.GetStartLocation();
+	if (frame % 2500 == 0) {
+		CombatMove('J', 'I'); 
+			//CombatMove('G', 'I');
+	}
 	lowPriorityCheck();
 	checkUnitsState();
+}
+
+void CombatCommander::updateAllRegionsInfo() { ////new	
+	int region_id;
+	Region *previous_region;
+	//for (int i = 0; i < 10; i++) {
+	//	m_regions.at(regions_name[i]).setAllUnits();
+	//}
+	for (auto unit : m_combatUnits) {
+		previous_region = nullptr;
+		if (unit.executeMacro() && !unit.isTraining()) {
+			unit.finishMacro();
+		}
+		region_id = (int)(unit.getPosition().x / region_width)
+			+ 3 * (int)(unit.getPosition().y / region_height);
+		for (int i = 0;i < 9;i ++)
+		{
+			if (m_regions.at(regions_name[i]).containsUnit(unit))
+			{
+				previous_region = &m_regions.at(regions_name[i]);
+			}
+		}
+		if (!m_regions.at(regions_name[9]).containsUnit(unit)) {
+			m_regions.at(regions_name[9]).addUnit(unit);
+		}
+		if (previous_region != nullptr && previous_region->getName() != m_regions.at(regions_name[region_id]).getName()) {
+			previous_region->removeUnit(unit);
+			m_regions.at(regions_name[region_id]).addUnit(unit);
+		}
+	}
+}
+
+void CombatCommander::CombatMove(char start_region, char end_region) { ////new
+	int start_region_id = start_region - 65;
+	int end_region_id = end_region - 65;
+	srand(time(NULL));
+	float target_pos_x = 0;
+	float target_pos_y = 0;	
+	std::vector<Unit> region_units = m_regions.at(regions_name[start_region_id]).getUnits();
+	for (auto unit : region_units) {
+		while (1) {
+			if (end_region_id == 9) {
+				target_pos_x = (rand() % int(m_bot.Map().width() * 10 - 80)) / 10.0 + 4.0;
+				target_pos_y = (rand() % int(m_bot.Map().height() * 10 - 80)) / 10.0 + 4.0;
+			}
+			else {
+				target_pos_x = (rand() % int(region_width * 10 - 80)) / 10.0 + m_regions.at(regions_name[end_region_id]).getXstart() + 4.0;
+				target_pos_y = (rand() % int(region_height * 10 - 80)) / 10.0 + m_regions.at(regions_name[end_region_id]).getYstart() + 4.0;
+			}
+			if (m_bot.Map().isWalkable(CCPosition(target_pos_x, target_pos_y))) {
+				break;
+			}
+		}
+		Micro::SmartMove(unit.getUnitPtr(), CCPosition(target_pos_x, target_pos_y), m_bot);
+		unit.startMacro();
+	}
 }
 
 void CombatCommander::lowPriorityCheck()
@@ -111,6 +184,9 @@ bool CombatCommander::shouldWeStartAttacking()
     return m_bot.Strategy().getCurrentStrategy().m_attackCondition.eval();
 }
 
+void CombatCommander::updateAllSquads() {
+	
+}
 void CombatCommander::updateIdleSquad()
 {
     Squad & idleSquad = m_squadData.getSquad("Idle");

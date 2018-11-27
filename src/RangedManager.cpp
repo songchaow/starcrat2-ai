@@ -78,6 +78,7 @@ void RangedManager::executeMicro()
     std::vector<const sc2::Unit *> rangedUnits;
     for (auto & unit : units)
     {
+		if (unit.executeMacro()) continue;
         const sc2::Unit * rangedUnit = unit.getUnitPtr();
         rangedUnits.push_back(rangedUnit);
     }

@@ -10,6 +10,7 @@ class Unit
     mutable CCBot * m_bot;
     CCUnitID    m_unitID;
     UnitType    m_unitType;
+	bool        m_macro_move = false; ////new
 
 #ifdef SC2API
     const sc2::Unit * m_unit;
@@ -78,4 +79,9 @@ public:
     void morph          (const UnitType & type) const;
 	bool useAbility(const sc2::ABILITY_ID abilityId) const;
 	sc2::AvailableAbilities getAbilities() const;
+	bool executeMacro() const; ////new
+
+	void startMacro(); ////new
+
+	void finishMacro(); ////new
 };
