@@ -124,6 +124,9 @@ void CombatCommander::updateAllRegionsInfo() { ////new
 		if (!m_regions.at(regions_name[9]).containsUnit(unit)) {
 			m_regions.at(regions_name[9]).addUnit(unit);
 		}
+		if (previous_region == nullptr) {
+			m_regions.at(regions_name[region_id]).addUnit(unit);
+		}
 		if (previous_region != nullptr && previous_region->getName() != m_regions.at(regions_name[region_id]).getName()) {
 			previous_region->removeUnit(unit);
 			m_regions.at(regions_name[region_id]).addUnit(unit);
