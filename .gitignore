@@ -37,3 +37,4 @@ vs/CommandCenter.vcxproj
 vs/CommandCenter.VC.db
 src/*.TMP
 /build**
+/.vs

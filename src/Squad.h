@@ -16,6 +16,9 @@ class Squad
     std::vector<Unit>   m_units;
     std::vector<Unit>   m_targets;
 
+	CCPosition          m_target_pos = { 0,0 };  ////new
+	bool                macro_move = false; ////new
+
 	int					m_lastRegroupFrame;
     int                 m_regroupStartFrame;
     int                 m_maxRegroupDuration;
@@ -48,6 +51,7 @@ class Squad
 
 public:
 
+	Squad(const std::string & name, const SquadOrder & order, CCBot & bot);
     Squad(const std::string & name, const SquadOrder & order, size_t priority, CCBot & bot);
     Squad(const std::string & name, const SquadOrder & order, int maxRegroupDuration, int regroupCooldown, int minRetreatDuration, float maxDistanceFromCenter, size_t priority, CCBot & bot);
     Squad(CCBot & bot);
@@ -80,4 +84,8 @@ public:
 
     const std::vector<Unit> & getUnits() const;
     const SquadOrder & getSquadOrder() const;
+
+	void setPosition(CCPosition pos); ////new
+	void executeMacro(); ////new
+	CCPosition getPosition(); ////new;
 };

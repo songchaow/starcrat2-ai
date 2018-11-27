@@ -19,6 +19,18 @@ Unit::Unit(const sc2::Unit * unit, CCBot & bot)
     
 }
 
+bool Unit::executeMacro() const{
+	return m_macro_move;
+}
+
+void Unit::startMacro() {
+	m_macro_move = true;
+}
+
+void Unit::finishMacro() {
+	m_macro_move = false;
+}
+
 const sc2::Unit * Unit::getUnitPtr() const
 {
     return m_unit;

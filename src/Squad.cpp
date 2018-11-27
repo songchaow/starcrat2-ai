@@ -17,6 +17,24 @@ Squad::Squad(CCBot & bot)
 {
 }
 
+Squad::Squad(const std::string & name, const SquadOrder & order, CCBot & bot) ////new
+	: m_bot(bot)
+	, m_name(name)
+	, m_order(order)
+	, m_regroupStartFrame(0)
+	, m_lastRegroupFrame(0)
+	, m_maxRegroupDuration(0)
+	, m_regroupCooldown(0)
+	, m_retreatStartFrame(0)
+	, m_minRetreatDuration(0)
+	, m_maxDistanceFromCenter(0)
+	, m_isSuiciding(false)
+	, m_priority(4)
+	, m_meleeManager(bot)
+	, m_rangedManager(bot)
+{
+}
+
 Squad::Squad(const std::string & name, const SquadOrder & order, size_t priority, CCBot & bot)
     : m_bot(bot)
     , m_name(name)
@@ -70,7 +88,7 @@ void Squad::onFrame()
     }
     else if (m_order.getType() == SquadOrderTypes::Regroup)
     {
-        CCPosition regroupPosition = calcCenter();
+		CCPosition regroupPosition = calcCenter();
 
 		if (m_bot.Config().DrawSquadInfo)
 			m_bot.Map().drawCircle(regroupPosition, 3, CCColor(0, 0, 255));
@@ -108,6 +126,18 @@ void Squad::onFrame()
 		for (auto & unit : m_units)
 			m_bot.Map().drawLine(unit.getPosition(), center);
 	}
+}
+
+CCPosition Squad::getPosition() {
+	return m_target_pos;
+}
+
+void Squad::setPosition(CCPosition pos) {
+	m_target_pos = pos;
+}
+
+void Squad::executeMacro() {
+	macro_move = true;
 }
 
 std::vector<Unit> Squad::calcVisibleTargets()
@@ -248,7 +278,7 @@ void Squad::addUnitsToMicroManagers()
 
         if (unit.getType().isTank())
         {
-            rangedUnits.push_back(unit);
+            tankUnits.push_back(unit);
         }
         // TODO: detectors
         else if (unit.getType().isDetector() && !unit.getType().isBuilding())
