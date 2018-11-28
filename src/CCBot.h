@@ -41,6 +41,7 @@ class CCBot
     std::vector<Unit>       m_allUnits;
     std::vector<CCPosition> m_baseLocations;
 public:
+    bool                    enable_render;
     typedef std::deque<CombatCommand*> CombatCommandList;
 private:
     CombatCommandList combatCommands;

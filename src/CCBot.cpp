@@ -24,6 +24,7 @@ void CCBot::OnGameFullStart() {}//end?
 void CCBot::OnGameEnd() //Start
 {
 #ifndef _WIN32
+if(enable_render)
 	sc2::renderer::Shutdown();
 #endif
 }
@@ -45,6 +46,7 @@ void CCBot::OnNuclearLaunchDetected() {}
 void CCBot::OnGameStart() //full start
 {
 #ifndef _WIN32
+	if(enable_render)
 	sc2::renderer::Initialize("Rendered", 50, 50, kMiniMapX + kMapX, std::max(kMiniMapY, kMapY));
 #endif
 
@@ -96,6 +98,8 @@ void CCBot::OnGameStart() //full start
 void CCBot::OnStep()
 {
 #ifndef _WIN32
+if(enable_render)
+{
 	const SC2APIProtocol::Observation* observation = Observation()->GetRawObservation();
 	const SC2APIProtocol::ObservationRender& render = observation->render_data();
 
@@ -106,6 +110,8 @@ void CCBot::OnStep()
 	sc2::renderer::ImageRGB(&map.data().data()[0], map.size().x(), map.size().y(), kMiniMapX, 0);
 
 	sc2::renderer::Render();
+}
+	
 #endif // !_WIN32
 
 	

@@ -126,6 +126,7 @@ int MicroMachine::Initialize(boost::python::list argv_list)
 		JSONTools::ReadBool("PlayAsHuman", info, PlayerOneIsHuman);
 		JSONTools::ReadBool("PlayVsItSelf", info, PlayVsItSelf);
 		JSONTools::ReadBool("EnableRenderer", info, render);
+		bot.enable_render = render;
 	}
 	else
 	{
