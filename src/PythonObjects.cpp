@@ -50,9 +50,24 @@ BOOST_PYTHON_MODULE(micromachine)
             ADD_METHOD(MicroMachine,Update)
 	    ;
 	// Commands
-	class_<Command> command_cls("Command");
-	class_<CombatCommand, bases<Command>>  combatcommand_cls("CombatCommand");
-	class_<RegionMoveCommand, bases<CombatCommand>> regionmvcmd_cls("RegionMoveCommand")
+	//class_<Command> command_cls("Command");
+	//class_<CombatCommand, bases<Command>>  combatcommand_cls("CombatCommand");
+	enum_<RegionID> region_id ("RegionID");
+	region_id
+		ADD_ENUM_ENTRY(RegionID, REGION_A)
+		ADD_ENUM_ENTRY(RegionID, REGION_B)
+		ADD_ENUM_ENTRY(RegionID, REGION_C)
+		ADD_ENUM_ENTRY(RegionID, REGION_D)
+		ADD_ENUM_ENTRY(RegionID, REGION_E)
+		ADD_ENUM_ENTRY(RegionID, REGION_F)
+		ADD_ENUM_ENTRY(RegionID, REGION_G)
+		ADD_ENUM_ENTRY(RegionID, REGION_H)
+		ADD_ENUM_ENTRY(RegionID, REGION_I)
+		ADD_ENUM_ENTRY(RegionID, REGION_ALL)
+		;
+	
+	class_<RegionMoveCommand, bases<CombatCommand>> regionmvcmd_cls("RegionMoveCommand", init<RegionID,RegionID>());
+        regionmvcmd_cls
 		ADD_READWRITE_ENTRY(RegionMoveCommand, source)
 		ADD_READWRITE_ENTRY(RegionMoveCommand, target)
 		;
