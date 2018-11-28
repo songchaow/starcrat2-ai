@@ -71,7 +71,7 @@ BOOST_PYTHON_MODULE(micromachine)
         mm_class
             ADD_METHOD(MicroMachine,Initialize)
             ADD_METHOD(MicroMachine,Update)
-            .def("AddRegionMoveAttack",func_ptr)
+            .def("AddRegionMoveCommand",func_ptr)
             ;	
 
 };

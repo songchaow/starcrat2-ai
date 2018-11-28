@@ -65,7 +65,7 @@ public:
     void onStart();
     void onFrame(const std::vector<Unit> & combatUnits);
 	void lowPriorityCheck();
-	void CombatMove(char start_region, char end_region);
+	void CombatMove(RegionID start_region, RegionID end_region);
 
 	std::map<Unit, std::pair<CCPosition, uint32_t>> & GetInvisibleSighting();
 

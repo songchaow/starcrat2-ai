@@ -157,9 +157,9 @@ void CombatCommander::updateAllRegionsInfo() { ////new
 	}
 }
 
-void CombatCommander::CombatMove(char start_region, char end_region) { ////new
-	int start_region_id = start_region - 65;
-	int end_region_id = end_region - 65;
+void CombatCommander::CombatMove(RegionID start_region, RegionID end_region) { ////new
+	int start_region_id = static_cast<int>(start_region);
+	int end_region_id = static_cast<int>(end_region);
 	srand(time(NULL));
 	float target_pos_x = 0;
 	float target_pos_y = 0;	
