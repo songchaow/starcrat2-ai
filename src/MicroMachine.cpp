@@ -7,6 +7,7 @@
 #include <csignal>
 #include <cstdlib>
 #include <chrono>
+#include <iostream>
 #include <fstream>
 #include "StackWalker.h"
 #include "MicroMachine.h"
@@ -27,20 +28,6 @@
 #include <unistd.h>
 #endif
 
-class Human : public sc2::Agent {
-public:
-	void OnGameStart() final {
-		Debug()->DebugTextOut("Human");
-		Debug()->SendDebug();
-
-	}
-
-	void OnStep()
-	{
-		Control()->GetObservation();
-	}
-
-};
 
 std::string getexepath()
 {
@@ -174,10 +161,6 @@ int MicroMachine::Initialize(boost::python::list argv_list)
 
 
 
-	Human human_bot;
-
-	sc2::PlayerSetup otherPlayer;
-	sc2::PlayerSetup spectatingPlayer;
 	if (PlayerOneIsHuman) {
 		spectatingPlayer = CreateParticipant(Util::GetRaceFromString(enemyRaceString), &human_bot);
 		otherPlayer = sc2::CreateParticipant(Util::GetRaceFromString(botRaceString), &bot);
@@ -223,6 +206,7 @@ int MicroMachine::Initialize(boost::python::list argv_list)
 
 void MicroMachine::Update()
 {
+	std::cout << "Dbg msg" << std::endl;
 	coordinator.Update();
 }
 
@@ -235,6 +219,7 @@ void MicroMachine::AddRegionMoveAttack(RegionMoveCommand* command)
 {
 	bot.AddRegionCommand(command);
 }
+
 
 #endif
 #endif
