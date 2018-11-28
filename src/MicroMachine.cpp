@@ -109,7 +109,31 @@ int MicroMachine::Initialize(boost::python::list argv_list)
 	sc2::Difficulty enemyDifficulty = sc2::Difficulty::Easy;
 	bool PlayVsItSelf = false;
 	bool PlayerOneIsHuman = false;
-	bool render = true; // TODO: read from config file
+	bool render = false; // TODO: read from config file
+
+
+
+
+	if (j.count("SC2API") && j["SC2API"].is_object())
+	{
+		const json & info = j["SC2API"];
+		JSONTools::ReadBool("ConnectToLadder", info, connectToLadder);
+		JSONTools::ReadString("BotRace", info, botRaceString);
+		JSONTools::ReadString("EnemyRace", info, enemyRaceString);
+		JSONTools::ReadString("MapFile", info, mapString);
+		JSONTools::ReadInt("StepSize", info, stepSize);
+		JSONTools::ReadInt("EnemyDifficulty", info, enemyDifficulty);
+		JSONTools::ReadBool("PlayAsHuman", info, PlayerOneIsHuman);
+		JSONTools::ReadBool("PlayVsItSelf", info, PlayVsItSelf);
+		JSONTools::ReadBool("EnableRenderer", info, render);
+	}
+	else
+	{
+		std::cerr << "Config file has no 'Game Info' object, required for starting the bot\n";
+		std::cerr << "Please read the instructions and try again\n";
+		std::cin.ignore();
+		exit(-1);
+	}
 
 #ifndef _WIN32
 	const int kMapX = 1000;
@@ -129,27 +153,6 @@ int MicroMachine::Initialize(boost::python::list argv_list)
 	coordinator.AddCommandLine("-eglpath libEGL.so");
 #endif
 #endif
-
-
-	if (j.count("SC2API") && j["SC2API"].is_object())
-	{
-		const json & info = j["SC2API"];
-		JSONTools::ReadBool("ConnectToLadder", info, connectToLadder);
-		JSONTools::ReadString("BotRace", info, botRaceString);
-		JSONTools::ReadString("EnemyRace", info, enemyRaceString);
-		JSONTools::ReadString("MapFile", info, mapString);
-		JSONTools::ReadInt("StepSize", info, stepSize);
-		JSONTools::ReadInt("EnemyDifficulty", info, enemyDifficulty);
-		JSONTools::ReadBool("PlayAsHuman", info, PlayerOneIsHuman);
-		JSONTools::ReadBool("PlayVsItSelf", info, PlayVsItSelf);
-	}
-	else
-	{
-		std::cerr << "Config file has no 'Game Info' object, required for starting the bot\n";
-		std::cerr << "Please read the instructions and try again\n";
-		std::cin.ignore();
-		exit(-1);
-	}
 
 	if (connectToLadder)
 	{

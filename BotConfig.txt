@@ -26,7 +26,8 @@
         "MapFile"                   : "MechDepotLE.SC2Map",
         "StepSize"                  : 1,
         "BatchReplayMode"           : false,
-        "NbBatchReplay"             : 50
+        "NbBatchReplay"             : 50,
+        "EnableRenderer"            : false
     },
         
     "Micro" :
