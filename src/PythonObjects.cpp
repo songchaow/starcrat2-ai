@@ -1,5 +1,6 @@
 #include "sc2api/sc2_unit.h"
 #include "MicroMachine.h"
+#include "Communicate.h"
 #include "boost/python.hpp"
 #include "boost/python/class.hpp"
 #include <boost/python/enum.hpp>
@@ -48,5 +49,12 @@ BOOST_PYTHON_MODULE(micromachine)
             ADD_METHOD(MicroMachine,Initialize)
             ADD_METHOD(MicroMachine,Update)
 	    ;
+	// Commands
+	class_<Command> command_cls("Command");
+	class_<CombatCommand, bases<Command>>  combatcommand_cls("CombatCommand");
+	class_<RegionMoveCommand, bases<CombatCommand>> regionmvcmd_cls("RegionMoveCommand")
+		ADD_READWRITE_ENTRY(RegionMoveCommand, source)
+		ADD_READWRITE_ENTRY(RegionMoveCommand, target)
+		;
 
 };
