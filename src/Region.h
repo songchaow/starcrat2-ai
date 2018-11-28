@@ -8,10 +8,18 @@
 
 class CCBot;
 
+enum RegionID
+{
+    REGION_A, REGION_B, REGION_C,
+    REGION_D, REGION_E, REGION_F,
+    REGION_G, REGION_H, REGION_I,
+    REGION_ALL
+};
+
 class Region
 {
     CCBot &             m_bot;
-
+    RegionID            region_id;
     std::string         m_name;
     std::vector<Unit>   m_units;
     float               m_width;
