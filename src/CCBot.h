@@ -62,7 +62,8 @@ public:
 #ifdef SC2API
     void AddRegionCommand(RegionID source, RegionID target);
     void AddRegionCommand(RegionMoveCommand* command);
-    const CombatCommandList& getCombatCommandList() const; 
+    const CombatCommandList& getCombatCommandList() const;
+    void ClearCombatCommandList() { combatCommands.clear(); } 
 	void OnGameFullStart() override;
     void OnGameStart() override;
 	void OnGameEnd() override;

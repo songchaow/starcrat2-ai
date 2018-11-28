@@ -10,6 +10,7 @@
 #include <fstream>
 #include "StackWalker.h"
 #include "MicroMachine.h"
+#include "Communicate.h"
 #include <boost/python.hpp>
 #ifdef COMPILE_TO_LIBRARY
 #define LINUX_USE_SOFTWARE_RENDER 0
@@ -219,6 +220,16 @@ int MicroMachine::Initialize(boost::python::list argv_list)
 void MicroMachine::Update()
 {
 	coordinator.Update();
+}
+
+void MicroMachine::AddRegionMoveAttack(RegionID source, RegionID target)
+{
+	bot.AddRegionCommand(source, target);
+}
+
+void MicroMachine::AddRegionMoveAttack(RegionMoveCommand* command)
+{
+	bot.AddRegionCommand(command);
 }
 
 #endif

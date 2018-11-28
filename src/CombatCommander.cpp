@@ -86,7 +86,9 @@ void CombatCommander::executeCommands()
 			default:
 				;
 		}
+		// TODO: get result of `CombatMove`, and store it into c.
 	}
+	m_bot.ClearCombatCommandList();
 }
 
 void CombatCommander::onFrame(const std::vector<Unit> & combatUnits)

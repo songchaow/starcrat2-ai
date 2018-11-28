@@ -44,11 +44,7 @@ BOOST_PYTHON_MODULE(micromachine)
 			//ADD_READWRITE_ENTRY(sc2::Unit, unit_type)
 			;
 	}
-	class_<MicroMachine> mm_class("MicroMachine");
-	mm_class
-            ADD_METHOD(MicroMachine,Initialize)
-            ADD_METHOD(MicroMachine,Update)
-	    ;
+	
 	// Commands
 	//class_<Command> command_cls("Command");
 	//class_<CombatCommand, bases<Command>>  combatcommand_cls("CombatCommand");
@@ -65,11 +61,17 @@ BOOST_PYTHON_MODULE(micromachine)
 		ADD_ENUM_ENTRY(RegionID, REGION_I)
 		ADD_ENUM_ENTRY(RegionID, REGION_ALL)
 		;
-	
-	class_<RegionMoveCommand, bases<CombatCommand>> regionmvcmd_cls("RegionMoveCommand", init<RegionID,RegionID>());
+	class_<RegionMoveCommand> regionmvcmd_cls("RegionMoveCommand", init<RegionID,RegionID>());
         regionmvcmd_cls
-		ADD_READWRITE_ENTRY(RegionMoveCommand, source)
-		ADD_READWRITE_ENTRY(RegionMoveCommand, target)
-		;
+                ADD_READWRITE_ENTRY(RegionMoveCommand, source)
+                ADD_READWRITE_ENTRY(RegionMoveCommand, target)
+                ;
+        void (MicroMachine::*func_ptr)(RegionMoveCommand* command) = &MicroMachine::AddRegionMoveAttack;
+	class_<MicroMachine> mm_class("MicroMachine");
+        mm_class
+            ADD_METHOD(MicroMachine,Initialize)
+            ADD_METHOD(MicroMachine,Update)
+            .def("AddRegionMoveAttack",func_ptr)
+            ;	
 
 };
