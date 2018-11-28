@@ -12,14 +12,13 @@ struct Command {};
 struct CombatCommand : Command
 {
     enum CombatType {RegionMove};
-    CombatType command_type;
     virtual const CombatType getCombatType() const = 0;
 };
 
 struct RegionMoveCommand : CombatCommand
 {
     virtual const CombatType getCombatType() const override {return CombatType::RegionMove;}
-    CombatCommand(RegionID source, RegionID target) .source(source), .target(target) {}
+    RegionMoveCommand(RegionID source, RegionID target) : source(source), target(target) {}
     RegionID source;
     RegionID target;
 };

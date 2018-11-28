@@ -55,6 +55,7 @@ class CombatCommander
     bool            shouldWeStartAttacking();
 	void            updateAllSquads();
 	void            updateAllRegionsInfo(); ////new
+	void			executeCommands();
 
 public:
 

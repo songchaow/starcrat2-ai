@@ -1,5 +1,7 @@
 #pragma once
 
+#include <deque>
+
 #include "Common.h"
 
 #include "MapTools.h"
@@ -13,6 +15,8 @@
 #include "TechTree.h"
 #include "MetaType.h"
 #include "Unit.h"
+#include "Region.h"
+#include "Communicate.h"
 
 #ifdef SC2API
 class CCBot : public sc2::Agent 
@@ -36,6 +40,11 @@ class CCBot
 	std::map<sc2::Tag, CCPosition> m_lastSeenPosUnits;
     std::vector<Unit>       m_allUnits;
     std::vector<CCPosition> m_baseLocations;
+public:
+    typedef std::deque<CombatCommand*> CombatCommandList;
+private:
+    CombatCommandList combatCommands;
+    //std::deque<BuildCommand> buildCommands; // next TODO.
 	CCRace selfRace;
 
 	void checkKeyState();
@@ -51,6 +60,9 @@ public:
     CCBot();
 
 #ifdef SC2API
+    void AddRegionCommand(RegionID source, RegionID target);
+    void AddRegionCommand(RegionMoveCommand* command);
+    const CombatCommandList& getCombatCommandList() const; 
 	void OnGameFullStart() override;
     void OnGameStart() override;
 	void OnGameEnd() override;

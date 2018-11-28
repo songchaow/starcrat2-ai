@@ -1,6 +1,7 @@
 #include "CCBot.h"
 #include "sc2renderer/sc2_renderer.h"
 #include "Util.h"
+#include "Communicate.h"
 
 const int kMapX = 1000;
 const int kMapY = 750;
@@ -253,6 +254,24 @@ void CCBot::setUnits()
     }
 #endif
 }
+
+#ifdef SC2API
+void CCBot::AddRegionCommand(RegionID source, RegionID target)
+{
+	RegionMoveCommand* command = new RegionMoveCommand(source, target);
+	combatCommands.push_back(command);
+	;
+}
+void CCBot::AddRegionCommand(RegionMoveCommand* command)
+{
+	combatCommands.push_back(command);
+}
+
+const CCBot::CombatCommandList& CCBot::getCombatCommandList() const
+{
+	return combatCommands;
+}
+#endif
 
 uint32_t CCBot::GetGameLoop() const
 {

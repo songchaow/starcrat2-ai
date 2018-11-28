@@ -2,6 +2,7 @@
 #include "Util.h"
 #include "CCBot.h"
 #include "stdlib.h" ////new
+#include "Communicate.h"
 
 const size_t IdlePriority = 0;
 const size_t BackupPriority = 1;
@@ -69,6 +70,25 @@ bool CombatCommander::isSquadUpdateFrame()
     return true;
 }
 
+void CombatCommander::executeCommands()
+{
+	auto &commandLists = m_bot.getCombatCommandList();
+	for(const CombatCommand* c : commandLists)
+	{
+		switch(c->getCombatType())
+		{
+			case CombatCommand::CombatType::RegionMove:
+			{
+				const RegionMoveCommand* move_command = static_cast<const RegionMoveCommand*>(c);
+				CombatMove(move_command->source, move_command->target);
+				break;
+		        }
+			default:
+				;
+		}
+	}
+}
+
 void CombatCommander::onFrame(const std::vector<Unit> & combatUnits)
 {
     if (!m_attackStarted)
@@ -93,10 +113,11 @@ void CombatCommander::onFrame(const std::vector<Unit> & combatUnits)
 
 	auto frame = m_bot.GetGameLoop();
 	CCPosition pos = m_bot.GetStartLocation();
-	if (frame % 2500 == 0) {
-		CombatMove('J', 'I'); 
-			//CombatMove('G', 'I');
-	}
+	// if (frame % 2500 == 0) {
+	// 	CombatMove('J', 'I'); 
+	// 		//CombatMove('G', 'I');
+	// }
+	executeCommands();
 	lowPriorityCheck();
 	checkUnitsState();
 }
