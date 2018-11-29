@@ -10,15 +10,27 @@ This repository is a refined version of [RaphaelRoyerRivard's MicroMachine](http
 
 ## How to build and run
 
-> You only need CMake and a Statecraft 2 distribution to build the project. Other dependencies are self-contained in the repo for convenience.
->
-> Linux distribution of Starcraft 2 can be download [here](https://github.com/Blizzard/s2client-proto#downloads).
+**Dependencies**
+
+- CMake
+- StarCraft 2 distribution
+- Boost Library
+
+Other dependencies are self-contained in the repo for convenience.
+
+[comment]: <> (This is a comment, it will not be included)
+
+[comment]: <> ( You only need CMake and a Statecraft 2 distribution to build the project. Other dependencies are self-contained in the repo for convenience.)
+
+[comment]: <> ( Linux distribution of Starcraft 2 can be download [here](https://github.com/Blizzard/s2client-proto#downloads).)
 
 ### Linux (tested in Ubuntu 18.04)
 
 **Build and install**
 
 After cloning this repository, execute these commands to build the bot.
+
+If your Boost library path is not default, edit `CMakeLists.txt` and add the path.
 
 ```bash
 mkdir build_linux && cd build_linux # or other names you like
