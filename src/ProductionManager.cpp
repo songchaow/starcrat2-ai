@@ -82,13 +82,141 @@ void ProductionManager::onFrame()
 		return;
 
 	lowPriorityChecks();
-    manageBuildOrderQueue();
+	//manageBuildOrderQueue();
+	//For Debug:
+	//Debug Start
+	int frame = m_bot.Observation()->GetGameLoop();
+	if (frame <= 1000) {
+		if (frame % 499 == 0) {
+			TryCreateResults createresults = TryCreate(MetaType(UnitType(sc2::UNIT_TYPEID::TERRAN_REFINERY, m_bot), m_bot));
+		}
+	}
+	else if (frame <= 2000) {
+		if (frame % 500 == 0) {
+			TryCreateResults createresults = TryCreate(MetaType(UnitType(sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT, m_bot), m_bot));
+		}
+		if (frame == 1100) {
+			TryCreateResults createresults = TryCreate(MetaType(UnitType(sc2::UNIT_TYPEID::TERRAN_BARRACKS, m_bot), m_bot));
+		}
+	}
+	else if (frame <= 3000) {
+		if (frame == 2100) {
+			TryCreateResults createresults = TryCreate(MetaType(UnitType(sc2::UNIT_TYPEID::TERRAN_BARRACKS, m_bot), m_bot));
+		}
+		if (frame == 2100) {
+			TryCreateResults createresults1 = TryCreate(MetaType(UnitType(sc2::UNIT_TYPEID::TERRAN_BARRACKS, m_bot), m_bot));
+		}
+	}
+	else {
+		if (frame % 200 == 0) {
+			TryCreateResults createresults = TryCreate(MetaType(UnitType(sc2::UNIT_TYPEID::TERRAN_REAPER, m_bot), m_bot));
+		}
+	}
+	//Debug End
 	QueueDeadBuildings();
 
     // TODO: if nothing is currently building, get a new goal from the strategy manager
     // TODO: triggers for game things like cloaked units etc
 
     drawProductionInformation();
+}
+
+TryCreateResults ProductionManager::TryCreate(const MetaType &type) {
+	bool result;
+	bool busy;
+	bool hasUnit;
+	std::vector<UnitType> units_required;
+	bool hasTech;
+	std::vector<UnitType> tech_required;
+	bool hasProducer;
+	std::vector<UnitType> producers_required;
+	bool enoughResource;
+	Unit producer;
+
+	result = false;
+	busy = true;
+	hasUnit = false;
+	hasTech = true;
+	hasProducer = false;
+	enoughResource = false;
+
+	const TypeData& typeData = m_bot.Data(type);
+
+	if (typeData.requiredUnits.empty()) {
+		hasUnit = true;
+	}
+	else {
+		for (auto & required : typeData.requiredUnits)
+		{
+			if (m_bot.UnitInfo().getUnitTypeCount(Players::Self, required, true, true) > 0) {
+				hasUnit = true;
+				units_required.clear();
+				break;
+			}
+			else if (m_bot.Buildings().isBeingBuilt(required)) {
+				hasUnit = false;
+			}
+			else {
+				hasUnit = false;
+				units_required.push_back(required);
+			}
+		}
+	}
+	if (units_required != typeData.requiredUnits) {
+		units_required.clear();
+	}
+	if (typeData.whatBuilds.empty()) {
+		hasProducer = true;
+	}
+	else {
+		for (auto & required : typeData.whatBuilds)
+		{
+			if (m_bot.UnitInfo().getUnitTypeCount(Players::Self, required, false, true) <= 0) {
+				producers_required.push_back(required);
+				continue;
+			}
+			for (auto & unit : m_bot.UnitInfo().getUnitTypeUnits(Players::Self, required, true)) {
+				if (!unit.isBeingConstructed()) {
+					hasProducer = true;
+				}
+				if (!unit.isBeingConstructed() && !unit.isConstructingAnything()) {
+					busy = false;
+					break;
+				}
+			}
+			if (hasProducer && !busy) {
+				producer = getProducer(type);
+				break;
+			}
+		}
+	}
+	if (!hasProducer) {
+		busy = false;
+	}
+
+	if (producers_required != typeData.whatBuilds) {
+		producers_required.clear();
+	}
+
+	if (typeData.mineralCost <= m_bot.GetMinerals() && typeData.gasCost <= m_bot.GetGas()
+		&& typeData.supplyCost <= (m_bot.GetMaxSupply() - m_bot.GetCurrentSupply())) {
+		enoughResource = true;
+	}
+	if (!busy && hasProducer && hasUnit && hasTech && enoughResource) {
+		create(producer, BuildOrderItem(type, 0, 0));
+		result = true;
+	}
+	TryCreateResults results = TryCreateResults(m_bot, result, busy, hasUnit, hasTech, hasProducer, enoughResource);
+	for (auto &unit : units_required) {
+		results.addUnitRequired(unit);
+	}
+	for (auto &unit : tech_required) {
+		results.addTechRequired(unit);
+	}
+	for (auto &unit : producers_required) {
+		results.addProducerRequired(unit);
+	}
+	return results;
 }
 
 // on unit destroy

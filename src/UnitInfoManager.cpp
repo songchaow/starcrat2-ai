@@ -290,6 +290,105 @@ size_t UnitInfoManager::getUnitTypeCount(CCPlayer player, UnitType type, bool co
     return count;
 }
 
+std::vector<Unit> & UnitInfoManager::getUnitTypeUnits(CCPlayer player, UnitType type, bool ignoreState) const
+{
+	std::vector<Unit> unittypeUnits;
+
+	for (auto & unit : getUnits(player))
+	{
+		if ((!type.isValid() || type == unit.getType()) && unit.isAlive())
+		{
+			unittypeUnits.push_back(unit);
+		}
+	}
+	if (ignoreState)
+	{
+		//TODO PROTOSS AND ZERG NOT IMPLEMENTED
+		sc2::UNIT_TYPEID typeID = type.getAPIUnitType();
+		sc2::UNIT_TYPEID alternate;
+		switch (typeID)
+		{
+		case sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT:
+			alternate = sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOTLOWERED;
+			break;
+		case sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOTLOWERED:
+			alternate = sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT;
+			break;
+		case sc2::UNIT_TYPEID::TERRAN_BARRACKS:
+			alternate = sc2::UNIT_TYPEID::TERRAN_BARRACKSFLYING;
+			break;
+		case sc2::UNIT_TYPEID::TERRAN_BARRACKSFLYING:
+			alternate = sc2::UNIT_TYPEID::TERRAN_BARRACKS;
+			break;
+		case sc2::UNIT_TYPEID::TERRAN_FACTORY:
+			alternate = sc2::UNIT_TYPEID::TERRAN_FACTORYFLYING;
+			break;
+		case sc2::UNIT_TYPEID::TERRAN_FACTORYFLYING:
+			alternate = sc2::UNIT_TYPEID::TERRAN_FACTORY;
+			break;
+		case sc2::UNIT_TYPEID::TERRAN_STARPORT:
+			alternate = sc2::UNIT_TYPEID::TERRAN_STARPORTFLYING;
+			break;
+		case sc2::UNIT_TYPEID::TERRAN_STARPORTFLYING:
+			alternate = sc2::UNIT_TYPEID::TERRAN_STARPORT;
+			break;
+		case sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER:
+			alternate = sc2::UNIT_TYPEID::TERRAN_COMMANDCENTERFLYING;
+			break;
+		case sc2::UNIT_TYPEID::TERRAN_COMMANDCENTERFLYING:
+			alternate = sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER;
+			break;
+		case sc2::UNIT_TYPEID::TERRAN_ORBITALCOMMAND:
+			alternate = sc2::UNIT_TYPEID::TERRAN_ORBITALCOMMANDFLYING;
+			break;
+		case sc2::UNIT_TYPEID::TERRAN_ORBITALCOMMANDFLYING:
+			alternate = sc2::UNIT_TYPEID::TERRAN_ORBITALCOMMAND;
+			break;
+		case sc2::UNIT_TYPEID::TERRAN_HELLION:
+			alternate = sc2::UNIT_TYPEID::TERRAN_HELLIONTANK;
+			break;
+		case sc2::UNIT_TYPEID::TERRAN_HELLIONTANK:
+			alternate = sc2::UNIT_TYPEID::TERRAN_HELLION;
+			break;
+		case sc2::UNIT_TYPEID::TERRAN_LIBERATOR:
+			alternate = sc2::UNIT_TYPEID::TERRAN_LIBERATORAG;
+			break;
+		case sc2::UNIT_TYPEID::TERRAN_LIBERATORAG:
+			alternate = sc2::UNIT_TYPEID::TERRAN_LIBERATOR;
+			break;
+		case sc2::UNIT_TYPEID::TERRAN_SIEGETANK:
+			alternate = sc2::UNIT_TYPEID::TERRAN_SIEGETANKSIEGED;
+			break;
+		case sc2::UNIT_TYPEID::TERRAN_SIEGETANKSIEGED:
+			alternate = sc2::UNIT_TYPEID::TERRAN_SIEGETANK;
+			break;
+		case sc2::UNIT_TYPEID::TERRAN_THOR:
+			alternate = sc2::UNIT_TYPEID::TERRAN_THORAP;
+			break;
+		case sc2::UNIT_TYPEID::TERRAN_THORAP:
+			alternate = sc2::UNIT_TYPEID::TERRAN_THOR;
+			break;
+		case sc2::UNIT_TYPEID::TERRAN_WIDOWMINE:
+			alternate = sc2::UNIT_TYPEID::TERRAN_WIDOWMINEBURROWED;
+			break;
+		case sc2::UNIT_TYPEID::TERRAN_WIDOWMINEBURROWED:
+			alternate = sc2::UNIT_TYPEID::TERRAN_WIDOWMINE;
+			break;
+		default:
+			return unittypeUnits;
+		}
+
+		for (auto & unit : getUnits(player))
+		{
+			if ((alternate == unit.getAPIUnitType()) && unit.isCompleted())
+			{
+				unittypeUnits.push_back(unit);
+			}
+		}
+	}
+	return unittypeUnits;
+}
+
 void UnitInfoManager::drawUnitInformation(float x,float y) const
 {
     if (!m_bot.Config().DrawEnemyUnitInfo)

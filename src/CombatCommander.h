@@ -13,6 +13,7 @@ class CombatCommander
 	std::map<std::string, Region> m_regions; ////new
 	float region_width;  ////new
 	float region_height; ////new
+	std::vector<Unit>  m_macroUnits; ////new
 
 	const int FRAME_BEFORE_SIGHTING_INVALIDATED = 25;
 
@@ -53,8 +54,8 @@ class CombatCommander
 
     void            updateDefenseSquadUnits(Squad & defenseSquad, size_t flyingDefendersNeeded, size_t groundDefendersNeeded, Unit & closestEnemy);
     bool            shouldWeStartAttacking();
-	void            updateAllSquads();
 	void            updateAllRegionsInfo(); ////new
+	void            updateMacroUnits(); ////new
 	void			executeCommands();
 
 public:

@@ -97,11 +97,18 @@ void CombatCommander::onFrame(const std::vector<Unit> & combatUnits)
     {
         m_attackStarted = shouldWeStartAttacking();
     }
-
+	updateMacroUnits();
     m_combatUnits = combatUnits;
+	for (auto &combatunit : m_combatUnits) {
+		for (auto &macrounit : m_macroUnits) {
+			if (macrounit.getID() == combatunit.getID()) {
+				combatunit.startMacro();
+				break;
+			}
+		}
+	}
 
-    m_squadData.onFrame();
-	
+	auto frame = m_bot.GetGameLoop();
     if (isSquadUpdateFrame())
     {
 		updateAllRegionsInfo();  ////new
@@ -112,9 +119,7 @@ void CombatCommander::onFrame(const std::vector<Unit> & combatUnits)
 		updateAttackSquads();
         updateBackupSquads();
     }
-
-	auto frame = m_bot.GetGameLoop();
-	CCPosition pos = m_bot.GetStartLocation();
+	m_squadData.onFrame();
 	// if (frame % 2500 == 0) {
 	// 	CombatMove('J', 'I'); 
 	// 		//CombatMove('G', 'I');
@@ -122,6 +127,21 @@ void CombatCommander::onFrame(const std::vector<Unit> & combatUnits)
 	executeCommands();
 	lowPriorityCheck();
 	checkUnitsState();
+}
+
+void CombatCommander::updateMacroUnits() {
+	std::vector<Unit> goodUnits;
+	for (auto & unit : m_macroUnits)
+	{
+		if (!unit.isValid()) { continue; }
+		if (unit.isBeingConstructed()) { continue; }
+		if (unit.getHitPoints() <= 0) { continue; }
+		if (!unit.isAlive()) { continue; }
+		if (!unit.isTraining()) { continue; }
+		goodUnits.push_back(unit);
+	}
+
+	m_macroUnits = goodUnits;
 }
 
 void CombatCommander::updateAllRegionsInfo() { ////new	
@@ -132,9 +152,9 @@ void CombatCommander::updateAllRegionsInfo() { ////new
 	//}
 	for (auto unit : m_combatUnits) {
 		previous_region = nullptr;
-		if (unit.executeMacro() && !unit.isTraining()) {
+		/*if (unit.executeMacro() && !unit.isTraining()) {
 			unit.finishMacro();
-		}
+		}*/
 		region_id = (int)(unit.getPosition().x / region_width)
 			+ 3 * (int)(unit.getPosition().y / region_height);
 		for (int i = 0;i < 9;i ++)
@@ -180,6 +200,7 @@ void CombatCommander::CombatMove(RegionID start_region, RegionID end_region) { /
 		}
 		Micro::SmartMove(unit.getUnitPtr(), CCPosition(target_pos_x, target_pos_y), m_bot);
 		unit.startMacro();
+		m_macroUnits.push_back(unit);
 	}
 }
 
@@ -210,9 +231,6 @@ bool CombatCommander::shouldWeStartAttacking()
     return m_bot.Strategy().getCurrentStrategy().m_attackCondition.eval();
 }
 
-void CombatCommander::updateAllSquads() {
-	
-}
 void CombatCommander::updateIdleSquad()
 {
     Squad & idleSquad = m_squadData.getSquad("Idle");
@@ -244,6 +262,25 @@ void CombatCommander::updateIdleSquad()
 		CCTilePosition nextExpansionPosition = m_bot.Bases().getNextExpansion(Players::Self);
 		SquadOrder idleOrder(SquadOrderTypes::Attack, CCPosition(nextExpansionPosition.x, nextExpansionPosition.y), DefaultOrderRadius, "Prepare for battle");
 		m_squadData.addSquad("Idle", Squad("Idle", idleOrder, IdlePriority, m_bot));
+	}
+	auto squadUnits = idleSquad.getUnits();
+	bool find;
+	for (auto & idleunit : squadUnits) {
+		find = false;
+		for (auto & macrounit : m_macroUnits) {
+			if (idleunit.getID() == macrounit.getID()) {
+				idleSquad.removeUnit(idleunit);
+				idleSquad.addUnit(macrounit);
+				find = true;
+				break;
+			}
+		}
+		if (!find) {
+			Unit unit = idleunit;
+			unit.finishMacro();
+			idleSquad.removeUnit(idleunit);
+			idleSquad.addUnit(unit);
+		}
 	}
 }
 
@@ -289,6 +326,28 @@ void CombatCommander::updateBackupSquads()
 
         ++backupNo;
     }
+	for (int i = 1; i < backupNo; i++) {
+		Squad & backupSquad = m_squadData.getSquad("Backup" + std::to_string(i));
+		auto squadUnits = backupSquad.getUnits();
+		bool find;
+		for (auto & backupunit : squadUnits) {
+			find = false;
+			for (auto & macrounit : m_macroUnits) {
+				if (backupunit.getID() == macrounit.getID()) {
+					backupSquad.removeUnit(backupunit);
+					backupSquad.addUnit(macrounit);
+					find = true;
+					break;
+				}
+			}
+			if (!find) {
+				Unit unit = backupunit;
+				unit.finishMacro();
+				backupSquad.removeUnit(backupunit);
+				backupSquad.addUnit(unit);
+			}
+		}
+	}
 }
 
 void CombatCommander::updateHarassSquads()
@@ -337,6 +396,25 @@ void CombatCommander::updateHarassSquads()
 
 	SquadOrder harassOrder(SquadOrderTypes::Harass, getMainAttackLocation(), HarassOrderRadius, "Harass");
 	harassSquad.setSquadOrder(harassOrder);
+	auto squadUnits = harassSquad.getUnits();
+	bool find;
+	for (auto & harassunit : squadUnits) {
+		find = false;
+		for (auto & macrounit : m_macroUnits) {
+			if (harassunit.getID() == macrounit.getID()) {
+				harassSquad.removeUnit(harassunit);
+				harassSquad.addUnit(macrounit);
+				find = true;
+				break;
+			}
+		}
+		if (!find) {
+			Unit unit = harassunit;
+			unit.finishMacro();
+			harassSquad.removeUnit(harassunit);
+			harassSquad.addUnit(unit);
+		}
+	}
 }
 
 void CombatCommander::updateAttackSquads()
@@ -381,6 +459,25 @@ void CombatCommander::updateAttackSquads()
         SquadOrder mainAttackOrder(SquadOrderTypes::Attack, getMainAttackLocation(), MainAttackOrderRadius, "Attack");
         mainAttackSquad.setSquadOrder(mainAttackOrder);
     }
+	auto squadUnits = mainAttackSquad.getUnits();
+	bool find;
+	for (auto & mainattackunit : squadUnits) {
+		find = false;
+		for (auto & macrounit : m_macroUnits) {
+			if (mainattackunit.getID() == macrounit.getID()) {
+				mainAttackSquad.removeUnit(mainattackunit);
+				mainAttackSquad.addUnit(macrounit);
+				find = true;
+				break;
+			}
+		}
+		if (!find) {
+			Unit unit = mainattackunit;
+			unit.finishMacro();
+			mainAttackSquad.removeUnit(mainattackunit);
+			mainAttackSquad.addUnit(unit);
+		}
+	}
 }
 
 void CombatCommander::updateScoutDefenseSquad()
@@ -454,6 +551,25 @@ void CombatCommander::updateScoutDefenseSquad()
 
         scoutDefenseSquad.clear();
     }
+	auto squadUnits = scoutDefenseSquad.getUnits();
+	bool find;
+	for (auto & scoutdefenseunit : squadUnits) {
+		find = false;
+		for (auto & macrounit : m_macroUnits) {
+			if (scoutdefenseunit.getID() == macrounit.getID()) {
+				scoutDefenseSquad.removeUnit(scoutdefenseunit);
+				scoutDefenseSquad.addUnit(macrounit);
+				find = true;
+				break;
+			}
+		}
+		if (!find) {
+			Unit unit = scoutdefenseunit;
+			unit.finishMacro();
+			scoutDefenseSquad.removeUnit(scoutdefenseunit);
+			scoutDefenseSquad.addUnit(unit);
+		}
+	}
 }
 
 void CombatCommander::updateDefenseSquads()
@@ -707,6 +823,25 @@ void CombatCommander::updateDefenseSquadUnits(Squad & defenseSquad, size_t flyin
 		{
 			m_squadData.assignUnitToSquad(defenderToAdd, defenseSquad);
 			defenderToAdd = findClosestDefender(defenseSquad, defenseSquad.getSquadOrder().getPosition(), closestEnemy, "ground");
+		}
+	}
+	auto squadUnits_update = defenseSquad.getUnits();
+	bool find;
+	for (auto & defenseunit : squadUnits_update) {
+		find = false;
+		for (auto & macrounit : m_macroUnits) {
+			if (defenseunit.getID() == macrounit.getID()) {
+				defenseSquad.removeUnit(defenseunit);
+				defenseSquad.addUnit(macrounit);
+				find = true;
+				break;
+			}
+		}
+		if (!find) {
+			Unit unit = defenseunit;
+			unit.finishMacro();
+			defenseSquad.removeUnit(defenseunit);
+			defenseSquad.addUnit(unit);
 		}
 	}
 }

@@ -21,6 +21,7 @@ void MicroManager::regroup(const CCPosition & regroupPosition) const
     // for each of the units we have
     for (auto & unit : m_units)
     {
+		if (unit.executeMacro()) continue;
         BOT_ASSERT(unit.isValid(), "null unit in MicroManager regroup");
 
         if (Util::Dist(unit, regroupPosition) > 4)

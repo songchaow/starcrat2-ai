@@ -492,7 +492,17 @@ bool Unit::isConstructingAnything() const
 #ifdef SC2API
 	BOT_ASSERT(isValid(), "Cannot check if unit is constructing because unit ptr is null");
 
-	return (getUnitPtr()->orders.size() > 0);
+	return (getUnitPtr()->orders.size() > 0) && (getUnitPtr()->orders[0].ability_id != sc2::ABILITY_ID::ATTACK)
+		&& (getUnitPtr()->orders[0].ability_id != sc2::ABILITY_ID::MOVE)
+		&& (getUnitPtr()->orders[0].ability_id != sc2::ABILITY_ID::HARVEST_GATHER)
+		&& (getUnitPtr()->orders[0].ability_id != sc2::ABILITY_ID::HARVEST_GATHER_DRONE)
+		&& (getUnitPtr()->orders[0].ability_id != sc2::ABILITY_ID::HARVEST_GATHER_PROBE)
+		&& (getUnitPtr()->orders[0].ability_id != sc2::ABILITY_ID::HARVEST_GATHER_SCV)
+		&& (getUnitPtr()->orders[0].ability_id != sc2::ABILITY_ID::HARVEST_RETURN)
+		&& (getUnitPtr()->orders[0].ability_id != sc2::ABILITY_ID::HARVEST_RETURN_DRONE)
+		&& (getUnitPtr()->orders[0].ability_id != sc2::ABILITY_ID::HARVEST_RETURN_MULE)
+		&& (getUnitPtr()->orders[0].ability_id != sc2::ABILITY_ID::HARVEST_RETURN_PROBE)
+		&& (getUnitPtr()->orders[0].ability_id != sc2::ABILITY_ID::HARVEST_RETURN_SCV);
 #else
 	return m_unit->isConstructing();
 #endif

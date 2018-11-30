@@ -6,6 +6,7 @@
 #include "BuildOrderQueue.h"
 #include "Unit.h"
 #include <string>
+#include "TryCreateResults.h"
 
 class CCBot;
 
