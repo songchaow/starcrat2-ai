@@ -7,12 +7,15 @@
 #include "Unit.h"
 #include <string>
 #include "TryCreateResults.h"
+#include "Upgrade.h"
 
 class CCBot;
 
 class ProductionManager
 {
     CCBot &       m_bot;
+
+	std::vector<Upgrade> m_upgrades; ////new
 
     BuildOrderQueue m_queue;
 	bool m_initialBuildOrderFinished;
@@ -64,4 +67,6 @@ public:
 	bool meetsReservedResources(const MetaType & type);
 	bool meetsReservedResourcesWithExtra(const MetaType & type);
 	std::vector<Unit> getUnitTrainingBuildings(CCRace race);
+
+	TryCreateResults TryCreate(const MetaType &type);
 };

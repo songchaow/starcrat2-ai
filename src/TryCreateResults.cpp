@@ -14,17 +14,22 @@ TryCreateResults::TryCreateResults(CCBot &bot, bool result, bool busy, bool hasU
 
 void TryCreateResults::addUnitRequired(const UnitType & unit_type)
 {
-    m_units_required.push_back(unit_type);
+    m_units_required.push_back(MetaType(unit_type,m_bot));
 }
 
-void TryCreateResults::addTechRequired(const UnitType & tech_type)
+void TryCreateResults::addTechRequired(const CCUpgrade & tech_type)
 {
-    m_tech_required.push_back(tech_type);
+    m_tech_required.push_back(MetaType(tech_type, m_bot));
+}
+
+void TryCreateResults::addTechRequiredResearching(const CCUpgrade & tech_type)
+{
+	m_tech_required_researching.push_back(MetaType(tech_type, m_bot));
 }
 
 void TryCreateResults::addProducerRequired(const UnitType & producer_type)
 {
-    m_producers_required.push_back(producer_type);
+    m_producers_required.push_back(MetaType(producer_type, m_bot));
 }
 
 bool TryCreateResults::getResult(){
@@ -51,14 +56,14 @@ bool TryCreateResults::hasEnoughResource(){
     return m_hasEnoughResource;
 }
 
-std::vector<UnitType> TryCreateResults::getUnitsRequired(){
+std::vector<MetaType> TryCreateResults::getUnitsRequired(){
     return m_units_required;
 }
 
-std::vector<UnitType> TryCreateResults::getTechRequired(){
+std::vector<MetaType> TryCreateResults::getTechRequired(){
     return m_tech_required;
 }
 
-std::vector<UnitType> TryCreateResults::getProducersRequired(){
+std::vector<MetaType> TryCreateResults::getProducersRequired(){
     return m_producers_required;
 }

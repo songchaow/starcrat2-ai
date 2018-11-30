@@ -24,6 +24,7 @@ void ProductionManager::setBuildOrder(const BuildOrder & buildOrder)
 
 void ProductionManager::onStart()
 {
+	m_upgrades.clear();
     setBuildOrder(m_bot.Strategy().getOpeningBookBuildOrder());
 	supplyProvider = Util::GetSupplyProvider(m_bot.GetSelfRace(), m_bot);
 	supplyProviderType = MetaType(supplyProvider, m_bot);
@@ -89,9 +90,13 @@ void ProductionManager::onFrame()
 	if (frame <= 1000) {
 		if (frame % 499 == 0) {
 			TryCreateResults createresults = TryCreate(MetaType(UnitType(sc2::UNIT_TYPEID::TERRAN_REFINERY, m_bot), m_bot));
+			TryCreateResults createresults1 = TryCreate(MetaType(sc2::UPGRADE_ID::TERRANINFANTRYWEAPONSLEVEL2, m_bot));
 		}
 	}
 	else if (frame <= 2000) {
+		if (frame == 1001) {
+			TryCreateResults createresults = TryCreate(MetaType(UnitType(sc2::UNIT_TYPEID::TERRAN_ENGINEERINGBAY, m_bot), m_bot));
+		}
 		if (frame % 500 == 0) {
 			TryCreateResults createresults = TryCreate(MetaType(UnitType(sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT, m_bot), m_bot));
 		}
@@ -100,14 +105,26 @@ void ProductionManager::onFrame()
 		}
 	}
 	else if (frame <= 3000) {
-		if (frame == 2100) {
-			TryCreateResults createresults = TryCreate(MetaType(UnitType(sc2::UNIT_TYPEID::TERRAN_BARRACKS, m_bot), m_bot));
+		if (frame == 2001) {
+			TryCreateResults createresults = TryCreate(MetaType(sc2::UPGRADE_ID::TERRANINFANTRYWEAPONSLEVEL1, m_bot));
 		}
-		if (frame == 2100) {
-			TryCreateResults createresults1 = TryCreate(MetaType(UnitType(sc2::UNIT_TYPEID::TERRAN_BARRACKS, m_bot), m_bot));
+		if (frame == 2200) {
+			TryCreateResults createresults = TryCreate(MetaType(sc2::UPGRADE_ID::TERRANINFANTRYWEAPONSLEVEL1, m_bot));
 		}
+		if (frame == 2500) {
+			TryCreateResults createresults = TryCreate(MetaType(sc2::UPGRADE_ID::TERRANINFANTRYWEAPONSLEVEL2, m_bot));
+		}
+		//if (frame == 2100) {
+		//	TryCreateResults createresults = TryCreate(MetaType(UnitType(sc2::UNIT_TYPEID::TERRAN_BARRACKS, m_bot), m_bot));
+		//}
+		//if (frame == 2100) {
+		//	TryCreateResults createresults1 = TryCreate(MetaType(UnitType(sc2::UNIT_TYPEID::TERRAN_BARRACKS, m_bot), m_bot));
+		//}
 	}
 	else {
+		if (frame == 4600) {
+			TryCreateResults createresults = TryCreate(MetaType(sc2::UPGRADE_ID::TERRANINFANTRYWEAPONSLEVEL2, m_bot));
+		}
 		if (frame % 200 == 0) {
 			TryCreateResults createresults = TryCreate(MetaType(UnitType(sc2::UNIT_TYPEID::TERRAN_REAPER, m_bot), m_bot));
 		}
@@ -127,7 +144,8 @@ TryCreateResults ProductionManager::TryCreate(const MetaType &type) {
 	bool hasUnit;
 	std::vector<UnitType> units_required;
 	bool hasTech;
-	std::vector<UnitType> tech_required;
+	std::vector<CCUpgrade> tech_required;
+	std::vector<CCUpgrade> tech_required_researching;
 	bool hasProducer;
 	std::vector<UnitType> producers_required;
 	bool enoughResource;
@@ -136,12 +154,12 @@ TryCreateResults ProductionManager::TryCreate(const MetaType &type) {
 	result = false;
 	busy = true;
 	hasUnit = false;
-	hasTech = true;
+	hasTech = false;
 	hasProducer = false;
 	enoughResource = false;
 
 	const TypeData& typeData = m_bot.Data(type);
-
+	//if any required unit is satisfied;
 	if (typeData.requiredUnits.empty()) {
 		hasUnit = true;
 	}
@@ -165,6 +183,32 @@ TryCreateResults ProductionManager::TryCreate(const MetaType &type) {
 	if (units_required != typeData.requiredUnits) {
 		units_required.clear();
 	}
+	//if all required upgrades are satisfied
+	if (typeData.requiredUpgrades.empty()) {
+		hasTech = true;
+	}
+	else {
+		for (auto & required : typeData.requiredUpgrades)
+		{
+			bool find = false;
+			for (auto & upgrade : m_upgrades) {
+				if (required == upgrade.getUpgradeID()) {
+					find = true;
+					if (upgrade.getFinishTime() >= m_bot.GetCurrentFrame()) {
+						tech_required_researching.push_back(required);
+					}
+					break;
+				}
+			}
+			if (!find) {
+				tech_required.push_back(required);
+			}
+		}
+		if (tech_required_researching.empty() && tech_required.empty()) {
+			hasTech = true;
+		}
+	}
+	//if any required producer is satisfied
 	if (typeData.whatBuilds.empty()) {
 		hasProducer = true;
 	}
@@ -210,8 +254,11 @@ TryCreateResults ProductionManager::TryCreate(const MetaType &type) {
 	for (auto &unit : units_required) {
 		results.addUnitRequired(unit);
 	}
-	for (auto &unit : tech_required) {
-		results.addTechRequired(unit);
+	for (auto &upgrade : tech_required) {
+		results.addTechRequired(upgrade);
+	}
+	for (auto &upgrade : tech_required_researching) {
+		results.addTechRequiredResearching(upgrade);
 	}
 	for (auto &unit : producers_required) {
 		results.addProducerRequired(unit);
@@ -1081,6 +1128,12 @@ void ProductionManager::create(const Unit & producer, const BuildOrderItem & ite
     else if (item.type.isUpgrade())
     {
 		Micro::SmartAbility(producer.getUnitPtr(), m_bot.Data(item.type.getUpgrade()).buildAbility, m_bot);
+		int currentFrame = m_bot.GetCurrentFrame();
+		Upgrade newUpgrade = Upgrade(m_bot, item.type.getUpgrade());
+		newUpgrade.setStartTime(currentFrame);
+		const TypeData& typeData = m_bot.Data(item.type);
+		newUpgrade.setFinishTime(currentFrame + typeData.buildTime);
+		m_upgrades.push_back(newUpgrade);
     }
 }
 

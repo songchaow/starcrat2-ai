@@ -84,17 +84,19 @@ class TryCreateResults {
 	bool m_result; 
 	bool m_busy;
 	bool m_hasUnit;
-	std::vector<UnitType> m_units_required;
+	std::vector<MetaType> m_units_required;
 	bool m_hasTech;
-	std::vector<UnitType> m_tech_required;
+	std::vector<MetaType> m_tech_required;
+	std::vector<MetaType> m_tech_required_researching;
 	bool m_hasProducer;
-	std::vector<UnitType> m_producers_required;
+	std::vector<MetaType> m_producers_required;
 	bool m_hasEnoughResource;
 public:
 	TryCreateResults(CCBot &m_bot, bool result, bool busy, bool hasUnit, bool hasTech, bool hasProducer, bool enoughResource);
 
     void addUnitRequired(const UnitType & unit_type);
-    void addTechRequired(const UnitType & unit_type);
+    void addTechRequired(const CCUpgrade & unit_type);
+	void addTechRequiredResearching(const CCUpgrade & unit_type);
     void addProducerRequired(const UnitType & unit_type);
 
     bool getResult();
@@ -104,7 +106,7 @@ public:
     bool hasProducerRequired();  
     bool hasEnoughResource();
 
-    std::vector<UnitType> getUnitsRequired();
-    std::vector<UnitType> getTechRequired();
-    std::vector<UnitType> getProducersRequired();
+    std::vector<MetaType> getUnitsRequired();
+    std::vector<MetaType> getTechRequired();
+    std::vector<MetaType> getProducersRequired();
 };
