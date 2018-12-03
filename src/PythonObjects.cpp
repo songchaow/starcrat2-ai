@@ -72,6 +72,7 @@ BOOST_PYTHON_MODULE(micromachine)
             ADD_METHOD(MicroMachine,Initialize)
             ADD_METHOD(MicroMachine,Update)
             .def("AddRegionMoveCommand",func_ptr)
+			ADD_METHOD(MicroMachine,GetSerializedObservation)
             ;	
 
 };

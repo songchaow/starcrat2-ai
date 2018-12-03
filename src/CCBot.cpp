@@ -482,4 +482,11 @@ void CCBot::OnError(const std::vector<sc2::ClientError> & client_errors, const s
 {
     
 }
+
+const void* CCBot::GetSerializedObservation()
+{
+	Observation()->GetRawObservation()->SerializeToArray(m_serialized,BUFFER_SIZE);
+	return m_serialized;
+}
+
 #endif

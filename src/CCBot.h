@@ -17,6 +17,8 @@
 #include "Unit.h"
 #include "Region.h"
 #include "Communicate.h"
+#include "sc2api/sc2_common.h"
+
 
 #ifdef SC2API
 class CCBot : public sc2::Agent 
@@ -40,6 +42,10 @@ class CCBot
 	std::map<sc2::Tag, CCPosition> m_lastSeenPosUnits;
     std::vector<Unit>       m_allUnits;
     std::vector<CCPosition> m_baseLocations;
+public:
+	static const int BUFFER_SIZE = 1024 * 1024;
+private:
+	char					m_serialized[BUFFER_SIZE];
 public:
     bool                    enable_render;
     typedef std::deque<CombatCommand*> CombatCommandList;
@@ -111,4 +117,5 @@ public:
 	std::map<sc2::Tag, Unit> & GetEnemyUnits();
 	uint32_t GetLastStepSeenUnit(sc2::Tag tag);
     const std::vector<CCPosition> & GetStartLocations() const;
+	const void* GetSerializedObservation();
 };

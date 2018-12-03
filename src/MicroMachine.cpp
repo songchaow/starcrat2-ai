@@ -13,6 +13,7 @@
 #include "MicroMachine.h"
 #include "Communicate.h"
 #include <boost/python.hpp>
+#include "Python.h"
 #ifdef COMPILE_TO_LIBRARY
 #define LINUX_USE_SOFTWARE_RENDER 0
 #ifdef SC2API
@@ -220,6 +221,16 @@ void MicroMachine::AddRegionMoveAttack(RegionMoveCommand* command)
 	bot.AddRegionCommand(command);
 }
 
+boost::python::object MicroMachine::GetSerializedObservation()
+{
+	const void* m_serialized = bot.GetSerializedObservation();
+	// boost::python::str obs((const char*)m_serialized,(const char*)m_serialized+bot.BUFFER_SIZE);
+	//PyObject* py_buf = PyBuffer_FromReadWriteMemory(m_serialized, bot.BUFFER_SIZE);
+	//PyObject* py_buf = PyMemoryView_FromMemory((char*)const_cast<void*>(m_serialized), bot.BUFFER_SIZE, PyBUF_READ);
+	//boost::python::object ret_val(boost::python::handle<PyObject>(py_buf));
+	boost::python::object ret_val(boost::python::handle<PyObject>(PyMemoryView_FromMemory((char*)const_cast<void*>(m_serialized), bot.BUFFER_SIZE, PyBUF_READ)));
+	return ret_val;
+}
 
 #endif
 #endif

@@ -40,6 +40,8 @@ public:
 	// Commands to C++-end
 	void AddRegionMoveAttack(RegionID source, RegionID target);
 	void AddRegionMoveAttack(RegionMoveCommand* command);
+	// Raw protobuf Observation class
+	boost::python::object GetSerializedObservation();
 };
 
 #endif
