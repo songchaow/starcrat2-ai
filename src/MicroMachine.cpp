@@ -221,6 +221,21 @@ void MicroMachine::AddRegionMoveAttack(RegionMoveCommand* command)
 	bot.AddRegionCommand(command);
 }
 
+void MicroMachine::AddProductionCommand(ProductionCommand* command)
+{
+	// transform to MetaType
+	MetaType m_type;
+	if(command->getProductType() == ProductionCommand::ProductType::Unit)
+	{
+		auto unit_type = static_cast<CreateCommand*>(command)->unit_type;
+		//m_type = MetaType()
+	}
+	else if(command->getProductType() == ProductionCommand::ProductType::Upgrade)
+	{
+		;
+	}
+}
+
 boost::python::object MicroMachine::GetSerializedObservation()
 {
 	const void* m_serialized = bot.GetSerializedObservation();
