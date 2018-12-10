@@ -6,6 +6,14 @@
 class Building;
 class CCBot;
 
+#define MAXCHANGENUMS 3
+#define INJECTLARVAENERGY 75
+
+enum Resource
+{
+	MINERAL, GAS, LARVA
+};
+
 class WorkerManager
 {
     CCBot & m_bot;
@@ -19,6 +27,7 @@ class WorkerManager
 	void handleMineralWorkers();
     void handleGasWorkers();
 	void handleIdleWorkers();
+	void handleIdleQueens();
     void handleRepairWorkers();
 	void repairCombatBuildings();
 	void lowPriorityChecks();
@@ -46,7 +55,7 @@ public:
     int  getNumGasWorkers();
     int  getNumWorkers();
 	std::set<Unit> getWorkers() const;
-	WorkerData getWorkerData() const;
+	WorkerData & getWorkerData() const;
     bool isWorkerScout(Unit worker) const;
     bool isFree(Unit worker) const;
     bool isBuilder(Unit worker) const;
@@ -61,5 +70,6 @@ public:
 	Unit getClosestMineralWorkerTo(const CCPosition & pos, CCUnitID workerToIgnore, float minHpPercentage = 0.f) const;
 	Unit getClosest(const Unit unit, const std::list<Unit> units) const;
 	//std::list<Unit> orderByDistance(const std::list<Unit> units, CCPosition pos, bool closestFirst);
+	void WorkerManager::HarvertActions(Resource resource);
 };
 

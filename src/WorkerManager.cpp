@@ -18,10 +18,14 @@ void WorkerManager::onStart()
 
 void WorkerManager::onFrame()
 {
-    m_workerData.updateAllWorkerData();
+	m_workerData.updateAllWorkerData();
 	handleMineralWorkers();
-    handleGasWorkers();
+	handleGasWorkers();
+	auto frame = m_bot.GetGameLoop();
     handleIdleWorkers();
+	if (m_bot.GetSelfRace() == sc2::Race::Zerg) {
+		handleIdleQueens();
+	}
 	repairCombatBuildings();
 	lowPriorityChecks();
 
@@ -32,6 +36,135 @@ void WorkerManager::onFrame()
 
     handleRepairWorkers();
 }
+
+void WorkerManager::handleIdleQueens() {
+	if (m_bot.GetSelfRace() != sc2::Race::Zerg) {
+		return;
+	}
+	std::vector<Unit> IdleQueens;
+	std::vector<Unit> OccupiedBases;
+	for (auto & unit : m_bot.UnitInfo().getUnits(Players::Self)) {
+		if (unit.getAPIUnitType() == sc2::UNIT_TYPEID::ZERG_QUEEN) {
+			if (!unit.isTraining()) {
+				IdleQueens.push_back(unit);
+			}
+		}
+	}
+
+	for (auto & unit : m_bot.UnitInfo().getUnits(Players::Self)) {
+		if ((unit.getAPIUnitType() == sc2::UNIT_TYPEID::ZERG_HATCHERY || unit.getAPIUnitType() == sc2::UNIT_TYPEID::ZERG_LAIR
+			|| unit.getAPIUnitType() == sc2::UNIT_TYPEID::ZERG_HIVE) && unit.isValid()) {
+			OccupiedBases.push_back(unit);
+		}
+	}
+
+	// for each of our workers
+
+	for (auto & idlequeen : IdleQueens)
+	{
+		if (!idlequeen.isValid() || idlequeen.getEnergy() < INJECTLARVAENERGY) { continue; }
+		//const sc2::Unit* workerPtr = idlequeen.getUnitPtr();
+		Unit closestBase;
+		double closestDist = std::numeric_limits<double>::max();
+		for (auto & occupiedbase : OccupiedBases) {
+			double dist = Util::DistSq(idlequeen.getPosition(), occupiedbase.getPosition());
+			if (dist < closestDist)
+			{
+				closestBase = occupiedbase;
+				closestDist = dist;
+			}
+		}
+		m_bot.Actions()->UnitCommand(idlequeen.getUnitPtr(), sc2::ABILITY_ID::EFFECT_INJECTLARVA, closestBase.getUnitPtr());
+
+	}
+}
+
+void WorkerManager::HarvertActions(Resource resource) {
+	if (resource == MINERAL) {
+		int count = 0;
+		std::list<Unit> toMineralWorkers;
+		for (auto worker : getWorkers()) {
+			if (count >= MAXCHANGENUMS) break;
+			int workerJob = m_workerData.getWorkerJob(worker);
+			if (workerJob == WorkerJobs::Gas) {
+				toMineralWorkers.push_back(worker);
+			}
+		}
+		if (toMineralWorkers.empty())
+		{
+			return;
+		}
+		for (auto & worker : toMineralWorkers) {
+			setMineralWorker(worker);
+		}
+	}
+	else if (resource == GAS) {
+		int count = 0;
+		for (auto & unit : m_bot.UnitInfo().getUnits(Players::Self))
+		{
+			if (count >= MAXCHANGENUMS) break;
+			// if that unit is a refinery
+			if (unit.getType().isRefinery() && unit.isCompleted())
+			{
+				// get the number of workers currently assigned to it
+				int numAssigned = m_workerData.getNumAssignedWorkers(unit);
+
+				// if it's less than we want it to be, fill 'er up
+				for (int i = 0; i < (3 - numAssigned); ++i)
+				{
+					if (getWorkerData().getWorkerJobCount(WorkerJobs::Minerals) <= getWorkerData().getWorkerJobCount(WorkerJobs::Gas) || count >= MAXCHANGENUMS)
+						break;
+
+					auto gasWorker = getGasWorker(unit);
+					if (gasWorker.isValid())
+					{
+						m_workerData.setWorkerJob(gasWorker, WorkerJobs::Gas, unit);
+						count++;
+					}
+				}
+			}
+		}
+	}
+	else {
+		std::vector<Unit> IdleQueens;
+		std::vector<Unit> OccupiedBases;
+		for (auto & unit : m_bot.UnitInfo().getUnits(Players::Self)) {
+			if (unit.getAPIUnitType() == sc2::UNIT_TYPEID::ZERG_QUEEN) {
+				if (!unit.isTraining()) {
+					IdleQueens.push_back(unit);
+				}
+			}
+		}
+
+		for (auto & unit : m_bot.UnitInfo().getUnits(Players::Self)) {
+			if ((unit.getAPIUnitType() == sc2::UNIT_TYPEID::ZERG_HATCHERY || unit.getAPIUnitType() == sc2::UNIT_TYPEID::ZERG_LAIR
+				|| unit.getAPIUnitType() == sc2::UNIT_TYPEID::ZERG_HIVE)&& unit.isValid()) {
+				OccupiedBases.push_back(unit);
+			}
+		}
+
+		// for each of our workers
+			
+		for (auto & idlequeen : IdleQueens)
+		{
+			if (!idlequeen.isValid() || idlequeen.getEnergy() < 25) { continue; }
+			//const sc2::Unit* workerPtr = idlequeen.getUnitPtr();
+			Unit closestBase;
+			double closestDist = std::numeric_limits<double>::max();
+			for (auto & occupiedbase : OccupiedBases) {
+				double dist = Util::DistSq(idlequeen.getPosition(), occupiedbase.getPosition());
+			    if (dist < closestDist)
+				{
+				    closestBase = occupiedbase;
+	      		    closestDist = dist;
+			    }
+		    }
+			m_bot.Actions()->UnitCommand(idlequeen.getUnitPtr(), sc2::ABILITY_ID::EFFECT_INJECTLARVA, closestBase.getUnitPtr());
+
+		}
+	}
+}
+
 
 void WorkerManager::setRepairWorker(Unit worker, const Unit & unitToRepair)
 {
@@ -787,7 +920,7 @@ std::set<Unit> WorkerManager::getWorkers() const
 	return m_workerData.getWorkers();
 }
 
-WorkerData WorkerManager::getWorkerData() const
+WorkerData & WorkerManager::getWorkerData() const
 {
 	return m_workerData;
 }

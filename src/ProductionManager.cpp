@@ -81,64 +81,15 @@ void ProductionManager::onFrame()
 {
 	if (m_bot.Bases().getPlayerStartingBaseLocation(Players::Self) == nullptr)
 		return;
-
 	lowPriorityChecks();
 	//manageBuildOrderQueue();
-	//For Debug:
-	//Debug Start
-	int frame = m_bot.Observation()->GetGameLoop();
-	if (frame <= 1000) {
-		if (frame % 499 == 0) {
-			TryCreateResults createresults = TryCreate(MetaType(UnitType(sc2::UNIT_TYPEID::TERRAN_REFINERY, m_bot), m_bot));
-			TryCreateResults createresults1 = TryCreate(MetaType(sc2::UPGRADE_ID::TERRANINFANTRYWEAPONSLEVEL2, m_bot));
-		}
-	}
-	else if (frame <= 2000) {
-		if (frame == 1001) {
-			TryCreateResults createresults = TryCreate(MetaType(UnitType(sc2::UNIT_TYPEID::TERRAN_ENGINEERINGBAY, m_bot), m_bot));
-		}
-		if (frame % 500 == 0) {
-			TryCreateResults createresults = TryCreate(MetaType(UnitType(sc2::UNIT_TYPEID::TERRAN_SUPPLYDEPOT, m_bot), m_bot));
-		}
-		if (frame == 1100) {
-			TryCreateResults createresults = TryCreate(MetaType(UnitType(sc2::UNIT_TYPEID::TERRAN_BARRACKS, m_bot), m_bot));
-		}
-	}
-	else if (frame <= 3000) {
-		if (frame == 2001) {
-			TryCreateResults createresults = TryCreate(MetaType(sc2::UPGRADE_ID::TERRANINFANTRYWEAPONSLEVEL1, m_bot));
-		}
-		if (frame == 2200) {
-			TryCreateResults createresults = TryCreate(MetaType(sc2::UPGRADE_ID::TERRANINFANTRYWEAPONSLEVEL1, m_bot));
-		}
-		if (frame == 2500) {
-			TryCreateResults createresults = TryCreate(MetaType(sc2::UPGRADE_ID::TERRANINFANTRYWEAPONSLEVEL2, m_bot));
-		}
-		//if (frame == 2100) {
-		//	TryCreateResults createresults = TryCreate(MetaType(UnitType(sc2::UNIT_TYPEID::TERRAN_BARRACKS, m_bot), m_bot));
-		//}
-		//if (frame == 2100) {
-		//	TryCreateResults createresults1 = TryCreate(MetaType(UnitType(sc2::UNIT_TYPEID::TERRAN_BARRACKS, m_bot), m_bot));
-		//}
-	}
-	else {
-		if (frame == 4600) {
-			TryCreateResults createresults = TryCreate(MetaType(sc2::UPGRADE_ID::TERRANINFANTRYWEAPONSLEVEL2, m_bot));
-		}
-		if (frame % 200 == 0) {
-			TryCreateResults createresults = TryCreate(MetaType(UnitType(sc2::UNIT_TYPEID::TERRAN_REAPER, m_bot), m_bot));
-		}
-	}
-	//Debug End
 	QueueDeadBuildings();
-
     // TODO: if nothing is currently building, get a new goal from the strategy manager
     // TODO: triggers for game things like cloaked units etc
-
     drawProductionInformation();
 }
 
-TryCreateResults ProductionManager::TryCreate(const MetaType &type) {
+TryCreateResults ProductionManager::TryCreate(const MetaType &type, CCTilePosition targetPos) {
 	bool result;
 	bool busy;
 	bool hasUnit;
@@ -148,15 +99,18 @@ TryCreateResults ProductionManager::TryCreate(const MetaType &type) {
 	std::vector<CCUpgrade> tech_required_researching;
 	bool hasProducer;
 	std::vector<UnitType> producers_required;
-	bool enoughResource;
 	Unit producer;
+	bool hasValidPlace = true;
+	bool hasEnergy = true;
+	bool hasMineral = false;
+	bool hasGas = false;
+	bool hasSupply = false;
 
 	result = false;
 	busy = true;
 	hasUnit = false;
 	hasTech = false;
 	hasProducer = false;
-	enoughResource = false;
 
 	const TypeData& typeData = m_bot.Data(type);
 	//if any required unit is satisfied;
@@ -180,7 +134,7 @@ TryCreateResults ProductionManager::TryCreate(const MetaType &type) {
 			}
 		}
 	}
-	if (units_required != typeData.requiredUnits) {
+	if (units_required.size() != typeData.requiredUnits.size()) {
 		units_required.clear();
 	}
 	//if all required upgrades are satisfied
@@ -229,10 +183,18 @@ TryCreateResults ProductionManager::TryCreate(const MetaType &type) {
 				}
 			}
 			if (hasProducer && !busy) {
-				producer = getProducer(type);
+				if (targetPos == CCTilePosition{ 0,0 }) {
+					producer = getProducer(type);
+				}
+				else {
+					producer = getProducer(type, CCPosition{ (float)targetPos.x,(float)targetPos.y });
+				}
 				break;
 			}
 		}
+	}
+	if (producer.isValid() == 0) {
+		hasProducer = false;
 	}
 	if (!hasProducer) {
 		busy = false;
@@ -242,15 +204,44 @@ TryCreateResults ProductionManager::TryCreate(const MetaType &type) {
 		producers_required.clear();
 	}
 
-	if (typeData.mineralCost <= m_bot.GetMinerals() && typeData.gasCost <= m_bot.GetGas()
-		&& typeData.supplyCost <= (m_bot.GetMaxSupply() - m_bot.GetCurrentSupply())) {
-		enoughResource = true;
+	if (typeData.mineralCost <= m_bot.GetMinerals()) {
+		hasMineral = true;
 	}
-	if (!busy && hasProducer && hasUnit && hasTech && enoughResource) {
-		create(producer, BuildOrderItem(type, 0, 0));
+
+	if (typeData.gasCost <= m_bot.GetGas()) {
+		hasGas = true;
+	}
+	if (typeData.supplyCost <= (m_bot.GetMaxSupply() - m_bot.GetCurrentSupply())) {
+		hasSupply = true;
+	}
+
+	if (type.isBuilding() && !type.getUnitType().isMorphedBuilding()) {
+		if (targetPos == CCTilePosition{ 0,0 }) {
+			if (m_bot.Buildings().getBuildingLocation(Building(type.getUnitType(), Util::GetTilePosition(m_bot.GetStartLocation()))) == CCTilePosition{ 0, 0 }) {
+				hasValidPlace = false;
+			}
+		}
+		else {
+			if (!m_bot.Buildings().getBuildingPlacer().canBuildHereWithSpace(targetPos.x, targetPos.y, Building(type.getUnitType(), targetPos), 0, false)) {
+				hasValidPlace = false;
+			}
+		}
+	}
+	if (hasProducer && !busy && type.getUnitType().getAPIUnitType() == sc2::UNIT_TYPEID::ZERG_CREEPTUMORBURROWED) {
+		if (producer.getAPIUnitType() == sc2::UNIT_TYPEID::ZERG_QUEEN && producer.getEnergy() < 25) {
+			hasEnergy = false;
+		}
+	}
+	if (!busy && hasProducer && hasUnit && hasTech && hasMineral && hasGas && hasSupply && hasValidPlace && hasEnergy) {
+		if (targetPos == CCTilePosition{ 0,0 }) {
+			create(producer, BuildOrderItem(type, 0, 0));
+		}
+		else {
+			create(producer, BuildOrderItem(type, 0, 0), targetPos);
+		}
 		result = true;
 	}
-	TryCreateResults results = TryCreateResults(m_bot, result, busy, hasUnit, hasTech, hasProducer, enoughResource);
+	TryCreateResults results = TryCreateResults(m_bot, result, busy, hasUnit, hasTech, hasProducer, hasMineral, hasGas, hasSupply, hasValidPlace, hasEnergy);
 	for (auto &unit : units_required) {
 		results.addUnitRequired(unit);
 	}
@@ -747,7 +738,7 @@ Unit ProductionManager::getProducer(const MetaType & type, CCPosition closestTo)
         // reasons a unit can not train the desired type
         if (std::find(producerTypes.begin(), producerTypes.end(), unit.getType()) == producerTypes.end()) { continue; }
         if (!unit.isCompleted()) { continue; }
-		if (unit.isFlying()) { continue; }
+		if (unit.isFlying() && unit.getAPIUnitType() != sc2::UNIT_TYPEID::ZERG_OVERLORD && unit.getAPIUnitType() != sc2::UNIT_TYPEID::ZERG_CORRUPTOR) { continue; }
 
 		bool isBuilding = m_bot.Data(unit).isBuilding;
 		if (isBuilding && unit.isTraining() && unit.getAddonTag() == 0) { continue; }
@@ -845,10 +836,35 @@ Unit ProductionManager::getProducer(const MetaType & type, CCPosition closestTo)
 			}
 		}
 
+		if (unit.getAPIUnitType() == sc2::UNIT_TYPEID::ZERG_CREEPTUMORBURROWED) {
+			if (m_bot.Query()->GetAbilitiesForUnit(unit.getUnitPtr()).abilities.empty()) {
+				continue;
+			}
+		}
+
         // if we haven't cut it, add it to the set of candidates
         candidateProducers.push_back(unit);
     }
 
+	if (type.getUnitType().getAPIUnitType() == sc2::UNIT_TYPEID::ZERG_CREEPTUMORBURROWED) {
+		bool hasEnergy = false;
+		std::vector<Unit> haveEnergy;
+		for (auto & producer : candidateProducers) {
+			if (producer.getAPIUnitType() == sc2::UNIT_TYPEID::ZERG_QUEEN) {
+				if (producer.getEnergy() >= 25) {
+					haveEnergy.push_back(producer);
+					hasEnergy = true;
+				}
+			}
+			else {
+				haveEnergy.push_back(producer);
+				hasEnergy = true;
+			}
+		}
+		if (hasEnergy) {
+			candidateProducers = haveEnergy;
+		}
+	}
     return getClosestUnitToPosition(candidateProducers, closestTo);
 }
 
@@ -1281,7 +1297,6 @@ void ProductionManager::drawProductionInformation()
 
     std::stringstream ss;
     ss << "Production Information\n\n";
-
     /*for (auto & unit : m_bot.UnitInfo().getUnits(Players::Self))
     {
         if (unit.isBeingConstructed())
@@ -1290,11 +1305,44 @@ void ProductionManager::drawProductionInformation()
         }
     }*/
 
-    ss << m_queue.getQueueInformation() << "\n\n";
+	ss << m_queue.getQueueInformation() << "\n\n";
 	ss << "Free Mineral:     " << getFreeMinerals() << "\n";
 	ss << "Free Gas:         " << getFreeGas() << "\n";
 	ss << "Reserved Mineral: " << m_bot.Buildings().getReservedMinerals() << "\n";
 	ss << "Reserved Gas: " << m_bot.Buildings().getReservedGas() << "\n";
 	ss << "Current Item: " << currentItem << "\n";
     m_bot.Map().drawTextScreen(0.01f, 0.01f, ss.str(), CCColor(255, 255, 0));
+	
+}
+
+void ProductionManager::drawMacroActionInformation(MetaType type)
+{
+	//if (!m_bot.Config().DrawProductionInfo)
+	//{
+		//    return;
+	//}
+
+	std::stringstream ss;
+	//ss << "Production Information\n\n";
+	ss << "Macro Action:\n\n";
+	/*for (auto & unit : m_bot.UnitInfo().getUnits(Players::Self))
+	{
+		if (unit.isBeingConstructed())
+		{
+			ss << sc2::UnitTypeToName(unit.unit_type) << " " << unit.build_progress << "\n";
+		}
+	}*/
+
+	/*
+	ss << m_queue.getQueueInformation() << "\n\n";
+	ss << "Free Mineral:     " << getFreeMinerals() << "\n";
+	ss << "Free Gas:         " << getFreeGas() << "\n";
+	ss << "Reserved Mineral: " << m_bot.Buildings().getReservedMinerals() << "\n";
+	ss << "Reserved Gas: " << m_bot.Buildings().getReservedGas() << "\n";
+	ss << "Current Item: " << currentItem << "\n";
+	
+	*/
+	ss << "Produce:  " << type.getName();
+	m_bot.Map().drawTextScreen(0.01f, 0.01f, ss.str(), CCColor(255, 255, 0));
+	m_bot.Debug()->SendDebug();
 }

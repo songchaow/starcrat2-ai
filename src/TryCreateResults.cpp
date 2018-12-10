@@ -1,14 +1,18 @@
 #include "TryCreateResults.h"
 #include "CCBot.h"
 
-TryCreateResults::TryCreateResults(CCBot &bot, bool result, bool busy, bool hasUnit, bool hasTech, bool hasProducer, bool enoughResource)
+TryCreateResults::TryCreateResults(CCBot &bot, bool result, bool busy, bool hasUnit, bool hasTech, bool hasProducer, bool hasMineral, bool hasGas, bool hasSupply, bool hasValidPlace, bool hasEnergy)
     : m_bot(bot)
 	, m_result(result)
 	, m_busy(busy)
     , m_hasUnit(hasUnit)
     , m_hasTech(hasTech)
     , m_hasProducer(hasProducer)
-	, m_hasEnoughResource(enoughResource)
+	, m_hasMineral(hasMineral)
+	, m_hasGas(hasGas)
+	, m_hasSupply(hasSupply)
+	, m_hasValidPlace(hasValidPlace)
+	, m_hasEnergy(hasEnergy)
 {
 }
 
@@ -52,8 +56,24 @@ bool TryCreateResults::hasProducerRequired(){
     return m_hasProducer;
 }
 
-bool TryCreateResults::hasEnoughResource(){
-    return m_hasEnoughResource;
+bool TryCreateResults::hasEnoughMineral(){
+    return m_hasMineral;
+}
+
+bool TryCreateResults::hasEnoughGas() {
+	return m_hasGas;
+}
+
+bool TryCreateResults::hasEnoughSupply() {
+	return m_hasSupply;
+}
+
+bool TryCreateResults::hasValidPlace() {
+	return m_hasValidPlace;
+}
+
+bool TryCreateResults::hasEnergy() {
+	return m_hasEnergy;
 }
 
 std::vector<MetaType> TryCreateResults::getUnitsRequired(){
@@ -62,6 +82,10 @@ std::vector<MetaType> TryCreateResults::getUnitsRequired(){
 
 std::vector<MetaType> TryCreateResults::getTechRequired(){
     return m_tech_required;
+}
+
+std::vector<MetaType> TryCreateResults::getTechRequiredResearching() {
+	return m_tech_required_researching;
 }
 
 std::vector<MetaType> TryCreateResults::getProducersRequired(){

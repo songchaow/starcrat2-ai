@@ -130,9 +130,14 @@ void BuildingManager::assignWorkersToUnassignedBuildings()
 			}
 
 			b.finalPosition = testLocation;
-
+			Unit builderUnit;
 			// grab the worker unit from WorkerManager which is closest to this final position
-			Unit builderUnit = m_bot.Workers().getBuilder(b);
+			if (b.type.getAPIUnitType() == sc2::UNIT_TYPEID::ZERG_NYDUSCANAL || b.type.getAPIUnitType() == sc2::UNIT_TYPEID::ZERG_CREEPTUMORBURROWED) {
+				builderUnit = m_bot.Commander().Production().getProducer(MetaType(b.type, m_bot));
+			}
+			else {
+				builderUnit = m_bot.Workers().getBuilder(b);
+			}
 			b.builderUnit = builderUnit;
 
 			if (!b.builderUnit.isValid())
@@ -350,7 +355,8 @@ void BuildingManager::checkForStartedConstruction()
                 // if we are zerg, the buildingUnit now becomes nullptr since it's destroyed
                 if (Util::IsZerg(m_bot.GetSelfRace()))
                 {
-                    b.builderUnit = Unit();
+					m_bot.Workers().getWorkerData().isMorphed(b.builderUnit);
+					b.builderUnit = Unit();
                 }
                 else if (Util::IsProtoss(m_bot.GetSelfRace()))
                 {

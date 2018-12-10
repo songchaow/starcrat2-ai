@@ -440,10 +440,17 @@ bool MapTools::isBuildable(int tileX, int tileY) const
     return m_buildable[tileX][tileY];
 }
 
-bool MapTools::canBuildTypeAtPosition(int tileX, int tileY, const UnitType & type) const
+bool MapTools::canBuildTypeAtPosition(int tileX, int tileY, const UnitType & type, bool countForTumor) const
 {
 #ifdef SC2API
+	if (countForTumor == true) {
+		return m_bot.Query()->Placement(m_bot.Data(type).buildAbility, CCPosition((float)tileX, (float)tileY))
+			|| m_bot.Query()->Placement(m_bot.Data(type).buildAbility, CCPosition((float)tileX - 0.5, (float)tileY))
+			|| m_bot.Query()->Placement(m_bot.Data(type).buildAbility, CCPosition((float)tileX, (float)tileY - 0.5))
+			|| m_bot.Query()->Placement(m_bot.Data(type).buildAbility, CCPosition((float)tileX - 0.5, (float)tileY - 0.5));
+	}
     return m_bot.Query()->Placement(m_bot.Data(type).buildAbility, CCPosition((float)tileX, (float)tileY));
+	//return m_bot.Observation()->IsPlacable(CCPosition((float)tileX, (float)tileY));
 #else
     return BWAPI::Broodwar->canBuildHere(BWAPI::TilePosition(tileX, tileY), type.getAPIUnitType());
 #endif

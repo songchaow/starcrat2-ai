@@ -31,7 +31,7 @@ class MapTools
     void printMap();
 
     float   terrainHeight(const CCPosition & point) const;
-    bool    canBuild(int tileX, int tileY);
+	bool    canBuild(int tileX, int tileY);
     bool    canWalk(int tileX, int tileY);
 
 public:
@@ -65,7 +65,7 @@ public:
     bool    isExplored(const CCTilePosition & pos) const;
 	bool	isVisible(CCPosition pos) const;
     bool    isVisible(int tileX, int tileY) const;
-    bool    canBuildTypeAtPosition(int tileX, int tileY, const UnitType & type) const;
+    bool    canBuildTypeAtPosition(int tileX, int tileY, const UnitType & type, bool countForTumor = false) const;
 
     const   DistanceMap & getDistanceMap(const CCTilePosition & tile) const;
     const   DistanceMap & getDistanceMap(const CCPosition & tile) const;

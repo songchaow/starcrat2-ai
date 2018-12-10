@@ -13,6 +13,20 @@ WorkerData::WorkerData(CCBot & bot)
     }
 }
 
+void WorkerData::isMorphed(Unit worker) {
+	std::vector<Unit> workersDestroyed;
+	for (auto m_worker : getWorkers()) {
+		if (m_worker.getTag() == worker.getTag()) {
+			workersDestroyed.push_back(m_worker);
+			break;
+		}
+	}
+	for (auto worker : workersDestroyed)
+	{
+		workerDestroyed(worker);
+	}
+}
+
 void WorkerData::updateAllWorkerData()
 {
 	if(m_bot.Config().DrawWorkerInfo)

@@ -92,13 +92,24 @@ bool BuildingPlacer::canBuildHereWithSpace(int bx, int by, const Building & b, i
         {
             if (!b.type.isRefinery())
             {
-                if (!buildable(b.type, x, y) || (!ignoreReserved && m_reserveMap[x][y]))
+                //if (!buildable(b.type, x, y) || (!ignoreReserved && m_reserveMap[x][y]))
+				if(!ignoreReserved && m_reserveMap[x][y])
                 {
                     return false;
                 }
             }
         }
     }
+	//not accurate but always useful
+	if (b.type.getAPIUnitType() == sc2::UNIT_TYPEID::ZERG_CREEPTUMORBURROWED) { 
+		UnitType countType = UnitType(sc2::UNIT_TYPEID::ZERG_SPINECRAWLER, m_bot);
+		if(!m_bot.Map().canBuildTypeAtPosition(startx, starty, countType,true)) {
+			return false;
+		}
+	}
+	else if (!m_bot.Map().canBuildTypeAtPosition(startx, starty, type)) {
+		return false;
+	}
 
 	//Test if there is space for an addon
 	switch ((sc2::UNIT_TYPEID)b.type.getAPIUnitType())
@@ -213,7 +224,7 @@ CCTilePosition BuildingPlacer::getBuildLocationNear(const Building & b, int buil
     }
 
     //printf("Building Placer Failure: %s - Took %lf ms\n", b.type.getName().c_str(), ms);
-	printf("Building Placer Failure, couldn't find anywhere valide to place it");
+	//printf("Building Placer Failure, couldn't find anywhere valide to place it");
     return CCTilePosition(0, 0);
 }
 
@@ -257,7 +268,10 @@ bool BuildingPlacer::tileOverlapsBaseLocation(int x, int y, UnitType type) const
 bool BuildingPlacer::buildable(const UnitType type, int x, int y) const
 {
     // TODO: doesnt take units on the map into account
-	return m_bot.Map().isBuildable(x, y) && m_bot.Map().canBuildTypeAtPosition(x, y, type) && (m_bot.GetSelfRace() == CCRace::Zerg || !m_bot.Observation()->HasCreep(CCPosition(x,y)));//Remplaced !m_bot.Map().canBuildTypeAtPosition(x, y, b.type)) with isBuildable.
+	if (type.getAPIUnitType() == sc2::UNIT_TYPEID::ZERG_HATCHERY) {
+		return m_bot.Map().isBuildable(x, y) && m_bot.Map().canBuildTypeAtPosition(x, y, type);
+	}
+	return m_bot.Map().isBuildable(x, y) && m_bot.Map().canBuildTypeAtPosition(x, y, type) && (m_bot.GetSelfRace() != CCRace::Zerg && !m_bot.Observation()->HasCreep(CCPosition(x,y)) || (m_bot.GetSelfRace() == CCRace::Zerg && m_bot.Observation()->HasCreep(CCPosition(x, y))));//Remplaced !m_bot.Map().canBuildTypeAtPosition(x, y, b.type)) with isBuildable.
 }
 
 void BuildingPlacer::reserveTiles(int bx, int by, int width, int height)

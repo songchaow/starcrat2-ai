@@ -119,11 +119,12 @@ BaseLocation::BaseLocation(CCBot & bot, int baseID, const std::vector<Unit> & re
 	}
 	centerOfMinerals.x /= m_minerals.size();
 	centerOfMinerals.y /= m_minerals.size();
-
 	auto turretPosition = CCTilePosition(centerOfMinerals.x, centerOfMinerals.y);
 
 	Building b(MetaTypeEnum::MissileTurret.getUnitType(), turretPosition);
-	turretPosition = m_bot.Buildings().getBuildingPlacer().getBuildLocationNear(b, 0, true);
+	if (m_bot.GetSelfRace() == sc2::Race::Terran) {
+		turretPosition = m_bot.Buildings().getBuildingPlacer().getBuildLocationNear(b, 0, true);
+	}
 	m_turretPosition = turretPosition;
 }
 
