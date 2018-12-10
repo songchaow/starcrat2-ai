@@ -10,33 +10,48 @@ This repository is a refined version of [RaphaelRoyerRivard's MicroMachine](http
 
 ## How to build and run
 
-> You only need CMake and a Statecraft 2 distribution to build the project. Other dependencies are self-contained in the repo for convenience.
->
-> Linux distribution of Starcraft 2 can be download [here](https://github.com/Blizzard/s2client-proto#downloads).
+**Dependencies**
 
-###Linux (tested in Ubuntu 18.04)
+- CMake
+- StarCraft 2 distribution
+- Boost Library
 
-**Build**
+Other dependencies are self-contained in the repo for convenience.
+
+[comment]: <> (This is a comment, it will not be included)
+
+[comment]: <> ( You only need CMake and a Statecraft 2 distribution to build the project. Other dependencies are self-contained in the repo for convenience.)
+
+[comment]: <> ( Linux distribution of Starcraft 2 can be download [here](https://github.com/Blizzard/s2client-proto#downloads).)
+
+### Linux (tested in Ubuntu 18.04)
+
+**Build and install**
 
 After cloning this repository, execute these commands to build the bot.
 
+If your Boost library path is not default, edit `CMakeLists.txt` and add the path.
+
 ```bash
-mkdir build_linux && cd build_linux# or other names you like
+mkdir build_linux && cd build_linux # or other names you like
 cmake ..
 make -jn # n is count of your processsor threads -1.
+make install
 ```
 
-If no error occurs, The `CommandCenter` executable will be generated in `build_linux/bin`.
+If no error occurs, The `CommandCenter` executable will be generated in `build_linux/installation/scripts`.
 
 **Run**
 
-- Copy `BotConfig.txt` in the root directory into `build_linux/bin`.
+- Go to `build_linux/installation/scripts`
 
-- Then execute `CommandCenter` with `-e` to specify the path to StarCraft 2 launcher.
+- Modify run.sh, so the `-e ...` argument points to the executable of StarCraft 2 distribution.
 
-  > The StarCraft 2 launcher is located at: `SC2_distribution_root_directory/Versions/Base60321/SC2_x64`.
+  The StarCraft 2 executable is usually located at: `SC2_distribution_root_directory/Versions/Base60321/SC2_x64`
 
-- Feel the power of AI Bot :).
+- If you run the bot with your own computer, you can enable the `EnableRenderer` flag in `BotConfig.txt`.
+
+- Execute `./run.sh` and feel the power of AI Bot :).
 
 ---
 
