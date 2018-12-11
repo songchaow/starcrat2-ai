@@ -323,7 +323,7 @@ void TechTree::initUpgradeData()
 	m_upgradeData[sc2::UPGRADE_ID::ZERGMISSILEWEAPONSLEVEL2] = { sc2::Race::Zerg, 150, 150, 0, 3040, false, false, false, false, false, false, false, sc2::ABILITY_ID::RESEARCH_ZERGMISSILEWEAPONSLEVEL2, 0, { UnitType(sc2::UNIT_TYPEID::ZERG_EVOLUTIONCHAMBER, m_bot) }, { UnitType(sc2::UNIT_TYPEID::ZERG_LAIR, m_bot), UnitType(sc2::UNIT_TYPEID::ZERG_HIVE, m_bot) }, {sc2::UPGRADE_ID::ZERGMISSILEWEAPONSLEVEL1} };
 	m_upgradeData[sc2::UPGRADE_ID::ZERGMISSILEWEAPONSLEVEL3] = { sc2::Race::Zerg, 200, 200, 0, 3520, false, false, false, false, false, false, false, sc2::ABILITY_ID::RESEARCH_ZERGMISSILEWEAPONSLEVEL3, 0, { UnitType(sc2::UNIT_TYPEID::ZERG_EVOLUTIONCHAMBER, m_bot) }, { UnitType(sc2::UNIT_TYPEID::ZERG_HIVE, m_bot) }, {sc2::UPGRADE_ID::ZERGMISSILEWEAPONSLEVEL2} };
 	m_upgradeData[88] = { sc2::Race::Zerg, 200, 200, 0, 3520, false, false, false, false, false, false, false, 263, 0, { UnitType(sc2::UNIT_TYPEID::ZERG_ULTRALISKCAVERN, m_bot) }, {}, {} }; //AnaboicSynthesis
-	m_upgradeData[293] = { sc2::Race::Zerg, 200, 200, 0, 3520, false, false, false, false, false, false, false, 3709, 0, { UnitType(sc2::UNIT_TYPEID::ZERG_LURKERDENMP, m_bot) }, {}, {} }; //DiggingClaws
+	m_upgradeData[293] = { sc2::Race::Zerg, 200, 200, 0, 3520, false, false, false, false, false, false, false, 3709, 0, { UnitType(sc2::UNIT_TYPEID::ZERG_LURKERDENMP, m_bot) }, {UnitType(sc2::UNIT_TYPEID::ZERG_HIVE, m_bot)}, {} }; //DiggingClaws
 	for (auto & kv : m_upgradeData)
 	{
 		if (kv.first == 0) { continue; }
@@ -383,7 +383,7 @@ const TypeData & TechTree::getData(const UnitType & type) const
 {
     if (m_unitTypeData.find(type) == m_unitTypeData.end())
     {
-        std::cout << "WARNING: Unit type not found: " << type.getName() << "\n";
+        //std::cout << "WARNING: Unit type not found: " << type.getName() << "\n";
         return m_unitTypeData.begin()->second;
     }
 
@@ -412,7 +412,7 @@ const TypeData & TechTree::getData(const MetaType & type) const
         return getData(type.getUpgrade());
     }
     
-    BOT_ASSERT(false, "Can't getData this type: %s", type.getName().c_str());
+    //BOT_ASSERT(false, "Can't getData this type: %s", type.getName().c_str());
 
     return m_unitTypeData.begin()->second;
 }
