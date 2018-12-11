@@ -200,7 +200,16 @@ void CombatCommander::CombatMove(RegionID start_region, RegionID end_region) { /
 		}
 		Micro::SmartMove(unit.getUnitPtr(), CCPosition(target_pos_x, target_pos_y), m_bot);
 		unit.startMacro();
-		m_macroUnits.push_back(unit);
+		bool inMacro = false;
+		for (auto & macrounit : m_macroUnits) {
+			if (unit.getID() == macrounit.getID()) {
+				inMacro = true;
+				break;
+			}
+		}
+		if (!inMacro) {
+			m_macroUnits.push_back(unit);
+		}
 	}
 }
 
