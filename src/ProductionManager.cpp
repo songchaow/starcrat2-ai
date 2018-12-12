@@ -89,7 +89,7 @@ void ProductionManager::onFrame()
     drawProductionInformation();
 }
 
-TryCreateResults ProductionManager::TryCreate(const MetaType &type, CCTilePosition targetPos) {
+TryCreateResults* ProductionManager::TryCreate(const MetaType &type, CCTilePosition targetPos) {
 	bool result;
 	bool busy;
 	bool hasUnit;
@@ -257,18 +257,18 @@ TryCreateResults ProductionManager::TryCreate(const MetaType &type, CCTilePositi
 		}
 		result = true;
 	}
-	TryCreateResults results = TryCreateResults(m_bot, result, busy, hasUnit, hasTech, hasProducer, hasMineral, hasGas, hasSupply, hasValidPlace, hasEnergy);
+	TryCreateResults* results = new TryCreateResults(m_bot, result, busy, hasUnit, hasTech, hasProducer, hasMineral, hasGas, hasSupply, hasValidPlace, hasEnergy);
 	for (auto &unit : units_required) {
-		results.addUnitRequired(unit);
+		results->addUnitRequired(unit);
 	}
 	for (auto &upgrade : tech_required) {
-		results.addTechRequired(upgrade);
+		results->addTechRequired(upgrade);
 	}
 	for (auto &upgrade : tech_required_researching) {
-		results.addTechRequiredResearching(upgrade);
+		results->addTechRequiredResearching(upgrade);
 	}
 	for (auto &unit : producers_required) {
-		results.addProducerRequired(unit);
+		results->addProducerRequired(unit);
 	}
 	return results;
 }
