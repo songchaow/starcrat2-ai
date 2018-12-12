@@ -13,7 +13,10 @@ import micromachine
 import sys
 from s2clientprotocol import sc2api_pb2
 mm_obj = micromachine.MicroMachine()
-mm_obj.Initialize(sys.argv)
+
+path_arg = ["-e","/home/aidev/packages/StarCraftII_game/Versions/Base60321/SC2_x64"]
+# mm_obj.Initialize(sys.argv)
+mm_obj.Initialize(path_arg)
 #construct a RegionMoveCommand object
 first_command = micromachine.RegionMoveCommand(
         micromachine.RegionID.REGION_A,micromachine.RegionID.REGION_B)

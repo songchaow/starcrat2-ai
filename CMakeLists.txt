@@ -8,10 +8,10 @@ set(BUILD_LIBRARY TRUE)
 FIND_PACKAGE(PythonInterp 3.6 REQUIRED)
 
 # set these with your own boost.
-# set(BOOST_ROOT "/media/songchaow/DATA/Codes/StarCraftII/boost_1_68_0/installation_linux")
+set(BOOST_ROOT "/home/aidev/packages/boost-build")
 # set(Boost_NO_SYSTEM_PATHS ON)
-# set(BOOST_INCLUDEDIR "/home/songchaow/Codes/boost_1_68_0/build/include")
-# set(BOOST_LIBRARYDIR "/home/songchaow/Codes/boost_1_68_0/build/lib")
+set(BOOST_INCLUDEDIR "/home/aidev/packages/boost-build/include")
+set(BOOST_LIBRARYDIR "/home/aidev/packages/boost-build/lib")
 
 if (PYTHONINTERP_FOUND)
   if (UNIX AND NOT APPLE)
@@ -44,9 +44,9 @@ message(STATUS "PYTHON_LIBRARIES = ${PYTHON_LIBRARIES}")
 message(STATUS "PYTHON_EXECUTABLE = ${PYTHON_EXECUTABLE}")
 message(STATUS "PYTHON_INCLUDE_DIRS = ${PYTHON_INCLUDE_DIRS}")
 
-set(Boost_LIBRARIES "${PROJECT_SOURCE_DIR}/boost-python/lib_linux/libboost_python36.so.1.68.0")
-set(Boost_INCLUDE_DIRS "/home/songchaow/Codes/boost_1_68_0")
-set(PYTHON_LIBRARIES "${PROJECT_SOURCE_DIR}/boost-python/lib_linux/libpython3.6m.so.1.0")
+set(Boost_LIBRARIES "/home/aidev/packages/boost-build/lib/libboost_python36.so.1.68.0")
+set(Boost_INCLUDE_DIRS "/home/aidev/packages/boost-build/include")
+# set(PYTHON_LIBRARIES "${PROJECT_SOURCE_DIR}/boost-python/lib_linux/libpython3.6m.so.1.0")
 
 set(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} ${Boost_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS}  ) 
 
