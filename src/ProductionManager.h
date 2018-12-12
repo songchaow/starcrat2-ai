@@ -68,6 +68,6 @@ public:
 	bool meetsReservedResourcesWithExtra(const MetaType & type);
 	std::vector<Unit> getUnitTrainingBuildings(CCRace race);
 
-	TryCreateResults TryCreate(const MetaType &type, CCTilePosition targetPos = CCTilePosition{ 0,0 });
+	TryCreateResults* TryCreate(const MetaType &type, CCTilePosition targetPos = CCTilePosition{ 0,0 });
 	void drawMacroActionInformation(MetaType type);
 };

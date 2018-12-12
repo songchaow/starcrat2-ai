@@ -80,6 +80,7 @@ m_result = false;
 */
 
 class TryCreateResults {
+public:
     CCBot &m_bot;
 	bool m_result; 
 	bool m_busy;
