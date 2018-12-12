@@ -19,6 +19,7 @@
 #ifdef SC2API
 #include "sc2utils/sc2_manage_process.h"
 #include "sc2api/sc2_api.h"
+#include "sc2api/sc2_typeenums.h"
 #include <string>
 
 #ifdef _WIN32
@@ -225,15 +226,22 @@ void MicroMachine::AddProductionCommand(ProductionCommand* command)
 {
 	// transform to MetaType
 	MetaType m_type;
+	TryCreateResults* results;
 	if(command->getProductType() == ProductionCommand::ProductType::Unit)
 	{
-		auto unit_type = static_cast<CreateCommand*>(command)->unit_type;
-		//m_type = MetaType()
+		sc2::UnitTypeID m_unit_type = static_cast<CreateCommand*>(command)->unit_type;
+		UnitType unit_type(m_unit_type,bot);
+		m_type = MetaType(unit_type,bot);
+
+		results = bot.Commander().Production().TryCreate(m_type,static_cast<CreateCommand*>(command)->target_pos);
 	}
 	else if(command->getProductType() == ProductionCommand::ProductType::Upgrade)
 	{
-		;
+		CCUpgrade m_upgrade_type = static_cast<UpgradeCommand*>(command)->upgrade_type;
+		m_type = MetaType(m_upgrade_type,bot);
+		results = bot.Commander().Production().TryCreate(m_type);
 	}
+	command->result = results;
 }
 
 boost::python::object MicroMachine::GetSerializedObservation()
