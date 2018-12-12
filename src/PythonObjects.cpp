@@ -67,9 +67,9 @@ BOOST_PYTHON_MODULE(micromachine)
                 ADD_READWRITE_ENTRY(RegionMoveCommand, source)
                 ADD_READWRITE_ENTRY(RegionMoveCommand, target)
                 ;
-	class_<Point2DI> pointi_cls("Point2DI", init<int, int>());
+	class_<sc2::Point2DI> pointi_cls("Point2DI", init<int, int>());
 
-	class_<TryCreateResults> create_result_cls("TryCreateResults");
+	class_<TryCreateResults> create_result_cls("TryCreateResults", no_init);
 		create_result_cls
 			ADD_READWRITE_ENTRY(TryCreateResults, m_result)
 			ADD_READWRITE_ENTRY(TryCreateResults, m_busy)
@@ -85,10 +85,10 @@ BOOST_PYTHON_MODULE(micromachine)
 
 
 	class_<CreateCommand> createcmd_cls("CreateCommand", init<unsigned int>());
-		createcmd_cls.def(init<unsigned int, Point2DI>())
+		createcmd_cls.def(init<unsigned int, sc2::Point2DI>())
 			ADD_READWRITE_ENTRY(CreateCommand, unit_type)
 			ADD_READWRITE_ENTRY(CreateCommand, target_pos)
-			ADD_READWRITE_ENTRY(CreateCommand, results)
+			ADD_READWRITE_ENTRY(CreateCommand, result)
 			;
     void (MicroMachine::*func_ptr)(RegionMoveCommand* command) = &MicroMachine::AddRegionMoveAttack;
 	class_<MicroMachine> mm_class("MicroMachine");
