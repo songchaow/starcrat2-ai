@@ -49,5 +49,5 @@ public:
     Unit getWorkerRepairTarget(const Unit & unit) const; 
     const std::set<Unit> getWorkerRepairingThatTargetC(const Unit & unit) const;
     void WorkerStoppedRepairing(const Unit & unit);
-	void WorkerData::isMorphed(Unit worker);
+    void isMorphed(Unit worker);
 };

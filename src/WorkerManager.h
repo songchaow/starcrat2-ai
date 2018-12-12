@@ -70,6 +70,6 @@ public:
 	Unit getClosestMineralWorkerTo(const CCPosition & pos, CCUnitID workerToIgnore, float minHpPercentage = 0.f) const;
 	Unit getClosest(const Unit unit, const std::list<Unit> units) const;
 	//std::list<Unit> orderByDistance(const std::list<Unit> units, CCPosition pos, bool closestFirst);
-	void WorkerManager::HarvertActions(Resource resource);
+	void HarvertActions(Resource resource);
 };
 

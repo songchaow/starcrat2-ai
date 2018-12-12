@@ -7,7 +7,7 @@
  */
 
 #include "Region.h"
-#include "sc2_typeenums.h"
+#include "sc2api/sc2_typeenums.h"
 
 struct Command {};
 struct CombatCommand : Command
