@@ -5,8 +5,8 @@
 #include "Building.h"
 
 WorkerManager::WorkerManager(CCBot & bot)
-    : m_bot         (bot)
-    , m_workerData  (bot)
+	: m_bot         (bot)
+	, m_workerData  (bot)
 {
 
 }
@@ -22,19 +22,19 @@ void WorkerManager::onFrame()
 	handleMineralWorkers();
 	handleGasWorkers();
 	auto frame = m_bot.GetGameLoop();
-    handleIdleWorkers();
+	handleIdleWorkers();
 	if (m_bot.GetSelfRace() == sc2::Race::Zerg) {
 		handleIdleQueens();
 	}
 	repairCombatBuildings();
 	lowPriorityChecks();
 
-    drawResourceDebugInfo();
-    drawWorkerInformation();
+	drawResourceDebugInfo();
+	drawWorkerInformation();
 
-    m_workerData.drawDepotDebugInfo();
+	m_workerData.drawDepotDebugInfo();
 
-    handleRepairWorkers();
+	handleRepairWorkers();
 }
 
 void WorkerManager::handleIdleQueens() {
@@ -144,7 +144,7 @@ void WorkerManager::HarvertActions(Resource resource) {
 		}
 
 		// for each of our workers
-			
+
 		for (auto & idlequeen : IdleQueens)
 		{
 			if (!idlequeen.isValid() || idlequeen.getEnergy() < 25) { continue; }
@@ -153,12 +153,12 @@ void WorkerManager::HarvertActions(Resource resource) {
 			double closestDist = std::numeric_limits<double>::max();
 			for (auto & occupiedbase : OccupiedBases) {
 				double dist = Util::DistSq(idlequeen.getPosition(), occupiedbase.getPosition());
-			    if (dist < closestDist)
+				if (dist < closestDist)
 				{
-				    closestBase = occupiedbase;
-	      		    closestDist = dist;
-			    }
-		    }
+					closestBase = occupiedbase;
+					closestDist = dist;
+				}
+			}
 			m_bot.Actions()->UnitCommand(idlequeen.getUnitPtr(), sc2::ABILITY_ID::EFFECT_INJECTLARVA, closestBase.getUnitPtr());
 
 		}
@@ -168,13 +168,13 @@ void WorkerManager::HarvertActions(Resource resource) {
 
 void WorkerManager::setRepairWorker(Unit worker, const Unit & unitToRepair)
 {
-    m_workerData.setWorkerJob(worker, WorkerJobs::Repair, unitToRepair);
+	m_workerData.setWorkerJob(worker, WorkerJobs::Repair, unitToRepair);
 }
 
 void WorkerManager::stopRepairing(Unit worker)
 {
-    m_workerData.WorkerStoppedRepairing(worker);
-    finishedWithWorker(worker);
+	m_workerData.WorkerStoppedRepairing(worker);
+	finishedWithWorker(worker);
 }
 
 void WorkerManager::handleMineralWorkers()
@@ -198,7 +198,7 @@ void WorkerManager::handleMineralWorkers()
 	{
 		return;
 	}
-	
+
 	if (!m_isFirstFrame)
 	{
 		return;
@@ -269,51 +269,51 @@ void WorkerManager::handleMineralWorkers()
 
 void WorkerManager::handleGasWorkers()
 {
-    // for each unit we have
-    for (auto & unit : m_bot.UnitInfo().getUnits(Players::Self))
-    {
-        // if that unit is a refinery
-        if (unit.getType().isRefinery() && unit.isCompleted())
-        {
-            // get the number of workers currently assigned to it
-            int numAssigned = m_workerData.getNumAssignedWorkers(unit);
+	// for each unit we have
+	for (auto & unit : m_bot.UnitInfo().getUnits(Players::Self))
+	{
+		// if that unit is a refinery
+		if (unit.getType().isRefinery() && unit.isCompleted())
+		{
+			// get the number of workers currently assigned to it
+			int numAssigned = m_workerData.getNumAssignedWorkers(unit);
 
-            // if it's less than we want it to be, fill 'er up
-            for (int i=0; i<(3-numAssigned); ++i)
-            {
+			// if it's less than we want it to be, fill 'er up
+			for (int i=0; i<(3-numAssigned); ++i)
+			{
 				if (getWorkerData().getWorkerJobCount(WorkerJobs::Minerals) <= getWorkerData().getWorkerJobCount(WorkerJobs::Gas))
 					break;
 
-                auto gasWorker = getGasWorker(unit);
-                if (gasWorker.isValid())
-                {
-                    m_workerData.setWorkerJob(gasWorker, WorkerJobs::Gas, unit);
-                }
-            }
-        }
-    }
+				auto gasWorker = getGasWorker(unit);
+				if (gasWorker.isValid())
+				{
+					m_workerData.setWorkerJob(gasWorker, WorkerJobs::Gas, unit);
+				}
+			}
+		}
+	}
 }
 
 void WorkerManager::handleIdleWorkers()
 {
-    // for each of our workers
-    for (auto & worker : m_workerData.getWorkers())
-    {
-        if (!worker.isValid()) { continue; }
+	// for each of our workers
+	for (auto & worker : m_workerData.getWorkers())
+	{
+		if (!worker.isValid()) { continue; }
 
 		int workerJob = m_workerData.getWorkerJob(worker);
-        if (worker.isIdle() &&
-            // We need to consider building worker because of builder finishing the job of another worker is not consider idle.
+		if (worker.isIdle() &&
+			// We need to consider building worker because of builder finishing the job of another worker is not consider idle.
 			//(m_workerData.getWorkerJob(worker) != WorkerJobs::Build) && 
-            (workerJob != WorkerJobs::Move) &&
-            (workerJob != WorkerJobs::Repair) &&
+			(workerJob != WorkerJobs::Move) &&
+			(workerJob != WorkerJobs::Repair) &&
 			(workerJob != WorkerJobs::Scout) &&
 			(workerJob != WorkerJobs::Build))//Prevent premoved builder from going Idle if they lack the ressources, also prevents refinery builder from going Idle
 		{
 			m_workerData.setWorkerJob(worker, WorkerJobs::Idle);
 			workerJob = WorkerJobs::Idle;
 		}
-		else if (workerJob == WorkerJobs::Build && !worker.isConstructingAnything())
+		else if (workerJob == WorkerJobs::Build && !worker.isTraining())
 		{
 			m_workerData.setWorkerJob(worker, WorkerJobs::Idle);
 			workerJob = WorkerJobs::Idle;
@@ -330,54 +330,54 @@ void WorkerManager::handleIdleWorkers()
 				setMineralWorker(worker);
 			}
 		}
-    }
+	}
 }
 
 void WorkerManager::handleRepairWorkers()
 {
-    // Only terran worker can repair
-    if (!Util::IsTerran(m_bot.GetSelfRace()))
-        return;
+	// Only terran worker can repair
+	if (!Util::IsTerran(m_bot.GetSelfRace()))
+		return;
 
-    for (auto & worker : m_workerData.getWorkers())
-    {
-        if (!worker.isValid()) { continue; }
+	for (auto & worker : m_workerData.getWorkers())
+	{
+		if (!worker.isValid()) { continue; }
 
-        if (m_workerData.getWorkerJob(worker) == WorkerJobs::Repair)
-        {
-            Unit repairedUnit = m_workerData.getWorkerRepairTarget(worker);
-            if (!worker.isAlive())
-            {
-                // We inform the manager that we are no longer repairing
-                stopRepairing(worker);
-            }
-            // We do not try to repair dead units
-            else if (!repairedUnit.isAlive() || repairedUnit.getHitPoints() + std::numeric_limits<float>::epsilon() >= repairedUnit.getUnitPtr()->health_max)
-            {
-                stopRepairing(worker);
-            }
-            else if (worker.isIdle())
-            {
-                // Get back to repairing...
-                worker.repair(repairedUnit);
-            }
-        }
+		if (m_workerData.getWorkerJob(worker) == WorkerJobs::Repair)
+		{
+			Unit repairedUnit = m_workerData.getWorkerRepairTarget(worker);
+			if (!worker.isAlive())
+			{
+				// We inform the manager that we are no longer repairing
+				stopRepairing(worker);
+			}
+			// We do not try to repair dead units
+			else if (!repairedUnit.isAlive() || repairedUnit.getHitPoints() + std::numeric_limits<float>::epsilon() >= repairedUnit.getUnitPtr()->health_max)
+			{
+				stopRepairing(worker);
+			}
+			else if (worker.isIdle())
+			{
+				// Get back to repairing...
+				worker.repair(repairedUnit);
+			}
+		}
 
 		// this has been commented out because it doesn't work well against worker rushes (less combat scvs and too much minerals are spent repairing)
-        /*if (worker.isAlive() && worker.getHitPoints() < worker.getUnitPtr()->health_max)
-        {
-            const std::set<Unit> & repairedBy = m_workerData.getWorkerRepairingThatTargetC(worker);
-            if (repairedBy.empty())
-            {
-                auto repairGuy = getClosestMineralWorkerTo(worker.getPosition(), worker.getID(), MIN_HP_PERCENTAGE_TO_FIGHT);
-                 
-                if (repairGuy.isValid() && Util::Dist(worker.getPosition(), repairGuy.getPosition()) <= m_bot.Config().MaxWorkerRepairDistance)
-                {
-                    setRepairWorker(repairGuy, worker);
-                }
-            }
-        }*/
-    }
+		/*if (worker.isAlive() && worker.getHitPoints() < worker.getUnitPtr()->health_max)
+		{
+			const std::set<Unit> & repairedBy = m_workerData.getWorkerRepairingThatTargetC(worker);
+			if (repairedBy.empty())
+			{
+				auto repairGuy = getClosestMineralWorkerTo(worker.getPosition(), worker.getID(), MIN_HP_PERCENTAGE_TO_FIGHT);
+
+				if (repairGuy.isValid() && Util::Dist(worker.getPosition(), repairGuy.getPosition()) <= m_bot.Config().MaxWorkerRepairDistance)
+				{
+					setRepairWorker(repairGuy, worker);
+				}
+			}
+		}*/
+	}
 }
 
 void WorkerManager::repairCombatBuildings()
@@ -402,46 +402,46 @@ void WorkerManager::repairCombatBuildings()
 		int alreadyRepairing = 0;
 		switch ((sc2::UNIT_TYPEID)building.getAPIUnitType())
 		{
-			case sc2::UNIT_TYPEID::TERRAN_MISSILETURRET:
-			case sc2::UNIT_TYPEID::TERRAN_BUNKER:
-				if (building.getHitPoints() > repairAt * building.getUnitPtr()->health_max)
-				{
-					continue;
-				}
+		case sc2::UNIT_TYPEID::TERRAN_MISSILETURRET:
+		case sc2::UNIT_TYPEID::TERRAN_BUNKER:
+			if (building.getHitPoints() > repairAt * building.getUnitPtr()->health_max)
+			{
+				continue;
+			}
 
-				for (auto & worker : workers)
+			for (auto & worker : workers)
+			{
+				Unit repairedUnit = m_workerData.getWorkerRepairTarget(worker);
+				if (repairedUnit.isValid() && repairedUnit.getID() == building.getID())
 				{
-					Unit repairedUnit = m_workerData.getWorkerRepairTarget(worker);
-					if (repairedUnit.isValid() && repairedUnit.getID() == building.getID())
+					alreadyRepairing++;
+					if (maxReparator == alreadyRepairing)
 					{
-						alreadyRepairing++;
-						if (maxReparator == alreadyRepairing)
-						{
-							break;
-						}
+						break;
 					}
 				}
-				for (int i = 0; i < maxReparator - alreadyRepairing; i++)
+			}
+			for (int i = 0; i < maxReparator - alreadyRepairing; i++)
+			{
+				Unit worker = getClosestMineralWorkerTo(building.getPosition());
+				setRepairWorker(worker, building);
+			}
+			break;
+		case sc2::UNIT_TYPEID::TERRAN_PLANETARYFORTRESS:
+			//TODO Doesn't use the gas workers
+			if (building.getHitPoints() > repairAt * building.getUnitPtr()->health_max)
+			{
+				continue;
+			}
+			for (auto & worker : workers)//TODO order by closest to the target base location
+			{
+				auto depot = m_workerData.getWorkerDepot(worker);
+				if (depot.isValid() && depot.getID() == building.getID())
 				{
-					Unit worker = getClosestMineralWorkerTo(building.getPosition());
 					setRepairWorker(worker, building);
 				}
-				break;
-			case sc2::UNIT_TYPEID::TERRAN_PLANETARYFORTRESS:
-				//TODO Doesn't use the gas workers
-				if (building.getHitPoints() > repairAt * building.getUnitPtr()->health_max)
-				{
-					continue;
-				}
-				for (auto & worker : workers)//TODO order by closest to the target base location
-				{
-					auto depot = m_workerData.getWorkerDepot(worker);
-					if (depot.isValid() && depot.getID() == building.getID())
-					{
-						setRepairWorker(worker, building);
-					}
-				}
-				break;
+			}
+			break;
 		}
 	}
 }
@@ -536,22 +536,22 @@ void WorkerManager::lowPriorityChecks()
 
 Unit WorkerManager::getClosestMineralWorkerTo(const CCPosition & pos, CCUnitID workerToIgnore, float minHpPercentage) const
 {
-    Unit closestMineralWorker;
-    double closestDist = std::numeric_limits<double>::max();
+	Unit closestMineralWorker;
+	double closestDist = std::numeric_limits<double>::max();
 
-    // for each of our workers
-    for (auto & worker : m_workerData.getWorkers())
-    {
-        if (!worker.isValid() || worker.getID() == workerToIgnore) { continue; }
+	// for each of our workers
+	for (auto & worker : m_workerData.getWorkers())
+	{
+		if (!worker.isValid() || worker.getID() == workerToIgnore) { continue; }
 		const sc2::Unit* workerPtr = worker.getUnitPtr();
 		if (workerPtr->health < minHpPercentage * workerPtr->health_max)
 		{
 			continue;
 		}
 
-        // if it is a mineral worker, Idle or None
-        if(isFree(worker))
-        {
+		// if it is a mineral worker, Idle or None
+		if(isFree(worker))
+		{
 			if (!isReturningCargo(worker))
 			{
 				double dist = Util::DistSq(worker.getPosition(), pos);
@@ -561,14 +561,14 @@ Unit WorkerManager::getClosestMineralWorkerTo(const CCPosition & pos, CCUnitID w
 					closestDist = dist;
 				}
 			}
-        }
-    }
+		}
+	}
 	return closestMineralWorker;
 }
 
 Unit WorkerManager::getClosestMineralWorkerTo(const CCPosition & pos, float minHpPercentage) const
 {
-    return getClosestMineralWorkerTo(pos, CCUnitID{}, minHpPercentage);
+	return getClosestMineralWorkerTo(pos, CCUnitID{}, minHpPercentage);
 }
 
 Unit WorkerManager::getClosest(const Unit unit, const std::list<Unit> units) const
@@ -627,7 +627,7 @@ Unit WorkerManager::getClosest(const Unit unit, const std::list<Unit> units) con
 		auto a = unit.getUnitPtr();
 		unorderedUnitsDistance.push_back(UnitDistance(unit, Util::Dist(unit.getUnitPtr()->pos, pos)));
 	}
-	
+
 	//sort
 	UnitDistance bestDistance = UnitDistance(Unit(), 1000000);
 	while (!unorderedUnitsDistance.empty())
@@ -666,63 +666,63 @@ Unit WorkerManager::getClosest(const Unit unit, const std::list<Unit> units) con
 // set a worker to mine minerals
 void WorkerManager::setMineralWorker(const Unit & unit)
 {
-    // check if there is a mineral available to send the worker to
-    auto depot = getClosestDepot(unit);
+	// check if there is a mineral available to send the worker to
+	auto depot = getClosestDepot(unit);
 
-    // if there is a valid mineral
-    if (depot.isValid())
-    {
-        // update m_workerData with the new job
-        m_workerData.setWorkerJob(unit, WorkerJobs::Minerals, depot);
-    }
+	// if there is a valid mineral
+	if (depot.isValid())
+	{
+		// update m_workerData with the new job
+		m_workerData.setWorkerJob(unit, WorkerJobs::Minerals, depot);
+	}
 }
 
 Unit WorkerManager::getClosestDepot(Unit worker) const
 {
-    Unit closestDepot;
-    double closestDistance = std::numeric_limits<double>::max();
+	Unit closestDepot;
+	double closestDistance = std::numeric_limits<double>::max();
 
-    for (auto & unit : m_bot.UnitInfo().getUnits(Players::Self))
-    {
-        if (!unit.isValid()) { continue; }
+	for (auto & unit : m_bot.UnitInfo().getUnits(Players::Self))
+	{
+		if (!unit.isValid()) { continue; }
 
-        if (unit.getType().isResourceDepot())
-        {
+		if (unit.getType().isResourceDepot())
+		{
 			if (!unit.isCompleted())
 			{
 				//Cannont allow unfinished bases, unless the base is morphing (orbital, lair and hive).
 				switch ((sc2::UNIT_TYPEID)unit.getAPIUnitType())
 				{
-					case sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER://Ignores flying depot
-					case sc2::UNIT_TYPEID::PROTOSS_NEXUS:
-					case sc2::UNIT_TYPEID::ZERG_HATCHERY:
-						continue;
+				case sc2::UNIT_TYPEID::TERRAN_COMMANDCENTER://Ignores flying depot
+				case sc2::UNIT_TYPEID::PROTOSS_NEXUS:
+				case sc2::UNIT_TYPEID::ZERG_HATCHERY:
+					continue;
 				}
 			}
-            double distance = Util::Dist(unit, worker);
-            if (!closestDepot.isValid() || distance < closestDistance)
-            {
-                closestDepot = unit;
-                closestDistance = distance;
-            }
-        }
-    }
+			double distance = Util::Dist(unit, worker);
+			if (!closestDepot.isValid() || distance < closestDistance)
+			{
+				closestDepot = unit;
+				closestDistance = distance;
+			}
+		}
+	}
 
-    return closestDepot;
+	return closestDepot;
 }
 
 // other managers that need workers call this when they're done with a unit
 void WorkerManager::finishedWithWorker(const Unit & unit)
 {
-    if (m_workerData.getWorkerJob(unit) != WorkerJobs::Scout)
-    {
-        m_workerData.setWorkerJob(unit, WorkerJobs::Idle);
-    }
+	if (m_workerData.getWorkerJob(unit) != WorkerJobs::Scout)
+	{
+		m_workerData.setWorkerJob(unit, WorkerJobs::Idle);
+	}
 }
 
 Unit WorkerManager::getGasWorker(Unit refinery) const
 {
-    return getClosestMineralWorkerTo(refinery.getPosition());
+	return getClosestMineralWorkerTo(refinery.getPosition());
 }
 
 const Unit & WorkerManager::getDepotAtBasePosition(CCPosition basePosition) const
@@ -755,7 +755,7 @@ void WorkerManager::setBuildingWorker(Unit worker)
 
 void WorkerManager::setBuildingWorker(Unit worker, Building & b)
 {
-    m_workerData.setWorkerJob(worker, WorkerJobs::Build, b.buildingUnit);
+	m_workerData.setWorkerJob(worker, WorkerJobs::Build, b.buildingUnit);
 }
 
 // gets a builder for BuildingManager to use
@@ -763,50 +763,50 @@ void WorkerManager::setBuildingWorker(Unit worker, Building & b)
 // set 'setJobAsBuilder' to false if we just want to see which worker will build a building
 Unit WorkerManager::getBuilder(Building & b, bool setJobAsBuilder) const
 {
-    Unit builderWorker = getClosestMineralWorkerTo(Util::GetPosition(b.finalPosition));
+	Unit builderWorker = getClosestMineralWorkerTo(Util::GetPosition(b.finalPosition));
 
-    // if the worker exists (one may not have been found in rare cases)
-    if (builderWorker.isValid() && setJobAsBuilder && m_workerData.getWorkerJob(builderWorker) != WorkerJobs::Build)
-    {
+	// if the worker exists (one may not have been found in rare cases)
+	if (builderWorker.isValid() && setJobAsBuilder && m_workerData.getWorkerJob(builderWorker) != WorkerJobs::Build)
+	{
 		m_workerData.setWorkerJob(builderWorker, WorkerJobs::Build, b.builderUnit);	// b.builderUnit is actually not used
-    }
+	}
 
-    return builderWorker;
+	return builderWorker;
 }
 
 // sets a worker as a scout
 void WorkerManager::setScoutWorker(Unit workerTag)
 {
-    m_workerData.setWorkerJob(workerTag, WorkerJobs::Scout);
+	m_workerData.setWorkerJob(workerTag, WorkerJobs::Scout);
 }
 
 void WorkerManager::setCombatWorker(Unit workerTag)
 {
-    m_workerData.setWorkerJob(workerTag, WorkerJobs::Combat);
+	m_workerData.setWorkerJob(workerTag, WorkerJobs::Combat);
 }
 
 void WorkerManager::drawResourceDebugInfo()
 {
-    if (!m_bot.Config().DrawResourceInfo)
-    {
-        return;
-    }
+	if (!m_bot.Config().DrawResourceInfo)
+	{
+		return;
+	}
 
-    for (auto & worker : m_workerData.getWorkers())
-    {
-        if (!worker.isValid()) { continue; }
+	for (auto & worker : m_workerData.getWorkers())
+	{
+		if (!worker.isValid()) { continue; }
 
-        if (worker.isIdle())
-        {
-            m_bot.Map().drawText(worker.getPosition(), m_workerData.getJobCode(worker));
-        }
+		if (worker.isIdle())
+		{
+			m_bot.Map().drawText(worker.getPosition(), m_workerData.getJobCode(worker));
+		}
 
-        auto depot = m_workerData.getWorkerDepot(worker);
-        if (depot.isValid())
-        {
-            m_bot.Map().drawLine(worker.getPosition(), depot.getPosition());
-        }
-    }
+		auto depot = m_workerData.getWorkerDepot(worker);
+		if (depot.isValid())
+		{
+			m_bot.Map().drawLine(worker.getPosition(), depot.getPosition());
+		}
+	}
 
 	for (auto & unit : m_bot.UnitInfo().getUnits(Players::Neutral))
 	{
@@ -814,24 +814,24 @@ void WorkerManager::drawResourceDebugInfo()
 		{
 			switch ((sc2::UNIT_TYPEID)unit.getAPIUnitType())
 			{
-				case sc2::UNIT_TYPEID::NEUTRAL_RICHMINERALFIELD:
-				case sc2::UNIT_TYPEID::NEUTRAL_RICHMINERALFIELD750:
-				case sc2::UNIT_TYPEID::NEUTRAL_PURIFIERRICHMINERALFIELD:
-				case sc2::UNIT_TYPEID::NEUTRAL_PURIFIERRICHMINERALFIELD750:
-					m_bot.Map().drawText(unit.getPosition(), "Rich mineral");
-					break;
-				case sc2::UNIT_TYPEID::NEUTRAL_MINERALFIELD:
-				case sc2::UNIT_TYPEID::NEUTRAL_MINERALFIELD750:
-				case sc2::UNIT_TYPEID::NEUTRAL_PURIFIERMINERALFIELD:
-				case sc2::UNIT_TYPEID::NEUTRAL_PURIFIERMINERALFIELD750:
-				case sc2::UNIT_TYPEID::NEUTRAL_LABMINERALFIELD:
-				case sc2::UNIT_TYPEID::NEUTRAL_LABMINERALFIELD750:
-				case sc2::UNIT_TYPEID::NEUTRAL_BATTLESTATIONMINERALFIELD:
-				case sc2::UNIT_TYPEID::NEUTRAL_BATTLESTATIONMINERALFIELD750:
-					m_bot.Map().drawText(unit.getPosition(), "Mineral");
-					break;
-				default:
-					m_bot.Map().drawText(unit.getPosition(), "Not mineral");
+			case sc2::UNIT_TYPEID::NEUTRAL_RICHMINERALFIELD:
+			case sc2::UNIT_TYPEID::NEUTRAL_RICHMINERALFIELD750:
+			case sc2::UNIT_TYPEID::NEUTRAL_PURIFIERRICHMINERALFIELD:
+			case sc2::UNIT_TYPEID::NEUTRAL_PURIFIERRICHMINERALFIELD750:
+				m_bot.Map().drawText(unit.getPosition(), "Rich mineral");
+				break;
+			case sc2::UNIT_TYPEID::NEUTRAL_MINERALFIELD:
+			case sc2::UNIT_TYPEID::NEUTRAL_MINERALFIELD750:
+			case sc2::UNIT_TYPEID::NEUTRAL_PURIFIERMINERALFIELD:
+			case sc2::UNIT_TYPEID::NEUTRAL_PURIFIERMINERALFIELD750:
+			case sc2::UNIT_TYPEID::NEUTRAL_LABMINERALFIELD:
+			case sc2::UNIT_TYPEID::NEUTRAL_LABMINERALFIELD750:
+			case sc2::UNIT_TYPEID::NEUTRAL_BATTLESTATIONMINERALFIELD:
+			case sc2::UNIT_TYPEID::NEUTRAL_BATTLESTATIONMINERALFIELD750:
+				m_bot.Map().drawText(unit.getPosition(), "Mineral");
+				break;
+			default:
+				m_bot.Map().drawText(unit.getPosition(), "Not mineral");
 			}
 		}
 	}
@@ -839,24 +839,24 @@ void WorkerManager::drawResourceDebugInfo()
 
 void WorkerManager::drawWorkerInformation()
 {
-    if (!m_bot.Config().DrawWorkerInfo)
-    {
-        return;
-    }
+	if (!m_bot.Config().DrawWorkerInfo)
+	{
+		return;
+	}
 
-    std::stringstream ss;
-    ss << "Workers: " << m_workerData.getWorkers().size() << "\n";
+	std::stringstream ss;
+	ss << "Workers: " << m_workerData.getWorkers().size() << "\n";
 
-    int yspace = 0;
+	int yspace = 0;
 
-    for (auto & worker : m_workerData.getWorkers())
-    {
-        ss << m_workerData.getJobCode(worker) << " " << worker.getID() << "\n";
+	for (auto & worker : m_workerData.getWorkers())
+	{
+		ss << m_workerData.getJobCode(worker) << " " << worker.getID() << "\n";
 
-        m_bot.Map().drawText(worker.getPosition(), m_workerData.getJobCode(worker));
-    }
+		m_bot.Map().drawText(worker.getPosition(), m_workerData.getJobCode(worker));
+	}
 
-    m_bot.Map().drawTextScreen(0.75f, 0.2f, ss.str());
+	m_bot.Map().drawTextScreen(0.75f, 0.2f, ss.str());
 }
 
 bool WorkerManager::isFree(Unit worker) const
@@ -864,17 +864,17 @@ bool WorkerManager::isFree(Unit worker) const
 	if (worker.getType().isMule())
 		return false;
 	int job = m_workerData.getWorkerJob(worker);
-    return job == WorkerJobs::Minerals || job == WorkerJobs::Idle || job == WorkerJobs::None;
+	return job == WorkerJobs::Minerals || job == WorkerJobs::Idle || job == WorkerJobs::None;
 }
 
 bool WorkerManager::isWorkerScout(Unit worker) const
 {
-    return (m_workerData.getWorkerJob(worker) == WorkerJobs::Scout);
+	return (m_workerData.getWorkerJob(worker) == WorkerJobs::Scout);
 }
 
 bool WorkerManager::isBuilder(Unit worker) const
 {
-    return (m_workerData.getWorkerJob(worker) == WorkerJobs::Build);
+	return (m_workerData.getWorkerJob(worker) == WorkerJobs::Build);
 }
 
 bool WorkerManager::isReturningCargo(Unit worker) const
@@ -893,26 +893,26 @@ bool WorkerManager::isReturningCargo(Unit worker) const
 
 int WorkerManager::getNumMineralWorkers()
 {
-    return m_workerData.getWorkerJobCount(WorkerJobs::Minerals);
+	return m_workerData.getWorkerJobCount(WorkerJobs::Minerals);
 }
 
 int WorkerManager::getNumGasWorkers()
 {
-    return m_workerData.getWorkerJobCount(WorkerJobs::Gas);
+	return m_workerData.getWorkerJobCount(WorkerJobs::Gas);
 
 }
 
 int WorkerManager::getNumWorkers()
 {
-    int count = 0;
-    for (auto worker : m_workerData.getWorkers())
-    {
-        if (worker.isValid() && worker.isAlive())
-        {
-            ++count;
-        }
-    }
-    return count;
+	int count = 0;
+	for (auto worker : m_workerData.getWorkers())
+	{
+		if (worker.isValid() && worker.isAlive())
+		{
+			++count;
+		}
+	}
+	return count;
 }
 
 std::set<Unit> WorkerManager::getWorkers() const

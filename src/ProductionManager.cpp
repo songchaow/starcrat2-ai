@@ -105,12 +105,15 @@ TryCreateResults ProductionManager::TryCreate(const MetaType &type, CCTilePositi
 	bool hasMineral = false;
 	bool hasGas = false;
 	bool hasSupply = false;
+	bool requiringAddon = false;
+	UnitType addon_required;
 
 	result = false;
 	busy = true;
 	hasUnit = false;
 	hasTech = false;
 	hasProducer = false;
+	
 
 	const TypeData& typeData = m_bot.Data(type);
 	//if any required unit is satisfied;
@@ -120,22 +123,35 @@ TryCreateResults ProductionManager::TryCreate(const MetaType &type, CCTilePositi
 	else {
 		for (auto & required : typeData.requiredUnits)
 		{
-			if (m_bot.UnitInfo().getUnitTypeCount(Players::Self, required, true, true) > 0) {
-				hasUnit = true;
-				units_required.clear();
-				break;
-			}
-			else if (m_bot.Buildings().isBeingBuilt(required)) {
-				hasUnit = false;
+			if (required.getAPIUnitType() == sc2::UNIT_TYPEID::TERRAN_BARRACKSTECHLAB
+				|| required.getAPIUnitType() == sc2::UNIT_TYPEID::TERRAN_FACTORYTECHLAB
+				|| required.getAPIUnitType() == sc2::UNIT_TYPEID::TERRAN_STARPORTTECHLAB) {
+				requiringAddon = true;
+				if (m_bot.UnitInfo().getUnitTypeCount(Players::Self, required, true, true) <= 0) {
+					addon_required = required;
+				}
 			}
 			else {
-				hasUnit = false;
-				units_required.push_back(required);
+				if (m_bot.UnitInfo().getUnitTypeCount(Players::Self, required, true, true) > 0) {
+					hasUnit = true;
+					units_required.clear();
+					break;
+				}
+				else if (m_bot.Buildings().isBeingBuilt(required)) {
+					hasUnit = false;
+				}
+				else {
+					hasUnit = false;
+					units_required.push_back(required);
+				}
 			}
 		}
 	}
-	if (units_required.size() != typeData.requiredUnits.size()) {
+	if (units_required.size() != typeData.requiredUnits.size() - (requiringAddon ? 1:0)) {
 		units_required.clear();
+	}
+	if (addon_required.isValid()) {
+		units_required.push_back(addon_required);
 	}
 	//if all required upgrades are satisfied
 	if (typeData.requiredUpgrades.empty()) {
@@ -800,24 +816,20 @@ Unit ProductionManager::getProducer(const MetaType & type, CCPosition closestTo)
 		if (m_bot.Data(type).requiredUnits.size() > 0)
 		{
 			bool hasRequiredUnit = false;
-			for (UnitType requiredUnit : m_bot.Data(type).requiredUnits)
+			UnitType requiredUnit = m_bot.Data(type).requiredUnits[0];
+			if (!requiredUnit.isAddon())
 			{
-				if (!requiredUnit.isAddon())
+				// maybe we don't hve what is needed, but it seems to already work for non addon units
+				hasRequiredUnit = true;
+			}
+			else	// addon
+			{
+				if (unit.getUnitPtr()->add_on_tag != 0)
 				{
-					// maybe we don't hve what is needed, but it seems to already work for non addon units
-					hasRequiredUnit = true;
-					break;
-				}
-				else	// addon
-				{
-					if (unit.getUnitPtr()->add_on_tag != 0)
+					Unit addon = m_bot.GetUnit(unit.getUnitPtr()->add_on_tag);
+					if (requiredUnit.getAPIUnitType() == addon.getAPIUnitType())
 					{
-						Unit addon = m_bot.GetUnit(unit.getUnitPtr()->add_on_tag);
-						if (requiredUnit.getAPIUnitType() == addon.getAPIUnitType())
-						{
-							hasRequiredUnit = true;
-							break;
-						}
+						hasRequiredUnit = true;
 					}
 				}
 			}
