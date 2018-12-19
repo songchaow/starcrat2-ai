@@ -206,10 +206,11 @@ int MicroMachine::Initialize(boost::python::list argv_list)
 	return 0;
 }
 
-void MicroMachine::Update()
+bool MicroMachine::Update()
 {
 	std::cout << "Dbg msg" << std::endl;
 	coordinator.Update();
+	return coordinator.AllGamesEnded(); // true if game ends
 }
 
 void MicroMachine::AddRegionMoveAttack(RegionID source, RegionID target)

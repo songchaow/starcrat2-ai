@@ -35,7 +35,7 @@ public:
         sc2::PlayerSetup otherPlayer;
         sc2::PlayerSetup spectatingPlayer;
 	int Initialize(boost::python::list argv_list);
-	void Update();
+	bool Update();
 	int mmain();
 	// Commands to C++-end
 	void AddRegionMoveAttack(RegionID source, RegionID target);
