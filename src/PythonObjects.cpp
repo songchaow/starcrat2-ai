@@ -45,6 +45,12 @@ BOOST_PYTHON_MODULE(micromachine)
 			//ADD_READWRITE_ENTRY(sc2::Unit, unit_type)
 			;
 	}
+	enum_<sc2::GameResult>("GameResult")
+		ADD_ENUM_ENTRY(sc2::GameResult, Win)
+		ADD_ENUM_ENTRY(sc2::GameResult, Loss)
+		ADD_ENUM_ENTRY(sc2::GameResult, Tie)
+		ADD_ENUM_ENTRY(sc2::GameResult, Undecided)
+		;
 	
 	// Commands
 	//class_<Command> command_cls("Command");
