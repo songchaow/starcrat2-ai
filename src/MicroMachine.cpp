@@ -9,6 +9,7 @@
 #include <chrono>
 #include <iostream>
 #include <fstream>
+#include <vector>
 #include "StackWalker.h"
 #include "MicroMachine.h"
 #include "Communicate.h"
@@ -20,6 +21,7 @@
 #include "sc2utils/sc2_manage_process.h"
 #include "sc2api/sc2_api.h"
 #include "sc2api/sc2_typeenums.h"
+#include "sc2api/sc2_gametypes.h"
 #include <string>
 
 #ifdef _WIN32
@@ -206,11 +208,29 @@ int MicroMachine::Initialize(boost::python::list argv_list)
 	return 0;
 }
 
-bool MicroMachine::Update()
+boost::python::list MicroMachine::Update()
 {
 	std::cout << "Dbg msg" << std::endl;
 	coordinator.Update();
-	return coordinator.AllGamesEnded(); // true if game ends
+	// get game results if game ends
+	bool ended = coordinator.AllGamesEnded();
+	auto result = GetOurResult();
+	boost::python::list ret_val;
+	ret_val.append(ended);
+	ret_val.append(result);
+	return ret_val; // true if game ends
+}
+
+sc2::GameResult MicroMachine::GetOurResult()
+{
+	auto ourID = Observation()->GetPlayerID();
+	const std::vector<sc2::PlayerResult> &results = bot.Observation().GetResults();
+	for(auto &result : results)
+	{
+		if(result.player_id == ourID)
+			return result;
+	}
+	return sc2::GameResult();
 }
 
 void MicroMachine::AddRegionMoveAttack(RegionID source, RegionID target)
