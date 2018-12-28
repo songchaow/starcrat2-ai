@@ -111,6 +111,9 @@ public:
     //! Uses settings gathered from LoadSettings, specifically the path to the executable, to run StarCraft II.
     void LaunchStarcraft();
 
+    //! Uses settings gathered from LoadSettings, specifically the path to the executable, to run StarCraft II remotely.
+    void RemoteLaunchStarcraft(std::string ip_addr, int comm_port);
+
     //! Attaches to a running Starcraft.
     void Connect(int port);
 
