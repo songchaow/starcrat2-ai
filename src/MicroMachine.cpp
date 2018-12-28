@@ -101,8 +101,9 @@ int MicroMachine::Initialize(boost::python::list argv_list)
 	bool PlayVsItSelf = false;
 	bool PlayerOneIsHuman = false;
 	bool render = false; // TODO: read from config file
-
-
+	bool remote = false;
+	std::string remote_addr;
+	int remote_comm_port = 0;
 
 
 	if (j.count("SC2API") && j["SC2API"].is_object())
@@ -117,6 +118,12 @@ int MicroMachine::Initialize(boost::python::list argv_list)
 		JSONTools::ReadBool("PlayAsHuman", info, PlayerOneIsHuman);
 		JSONTools::ReadBool("PlayVsItSelf", info, PlayVsItSelf);
 		JSONTools::ReadBool("EnableRenderer", info, render);
+		JSONTools::ReadBool("Remote", info, remote);
+		if(remote)
+		{
+		    JSONTools::ReadString("RemoteAddress", info, remote_addr);
+		    JSONTools::ReadInt("CommPort", info, remote_comm_port);
+		}
 		bot.enable_render = render;
 	}
 	else
@@ -195,7 +202,13 @@ int MicroMachine::Initialize(boost::python::list argv_list)
 		});
 
 	// Start the game.
-	coordinator.LaunchStarcraft();
+	if(remote)
+	{
+		std::cout<<"Launching SC2 from remote..."<<std::endl;
+		coordinator.RemoteLaunchStarcraft(remote_addr, remote_comm_port);
+	}
+	else
+		coordinator.LaunchStarcraft();
 	coordinator.StartGame(mapString);
 	auto now = std::chrono::system_clock::now();
 	// Step forward the game simulation.
@@ -210,7 +223,6 @@ int MicroMachine::Initialize(boost::python::list argv_list)
 
 boost::python::list MicroMachine::Update()
 {
-	std::cout << "Dbg msg" << std::endl;
 	coordinator.Update();
 	// get game results if game ends
 	bool ended = coordinator.AllGamesEnded();

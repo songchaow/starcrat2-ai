@@ -27,7 +27,10 @@
         "StepSize"                  : 1,
         "BatchReplayMode"           : false,
         "NbBatchReplay"             : 50,
-        "EnableRenderer"            : false
+        "EnableRenderer"            : false,
+	"Remote"                    : true,
+	"RemoteAddress"             : "114.214.174.206",
+	"CommPort"                  : 65432
     },
         
     "Micro" :
