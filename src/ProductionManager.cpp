@@ -82,7 +82,7 @@ void ProductionManager::onFrame()
 	if (m_bot.Bases().getPlayerStartingBaseLocation(Players::Self) == nullptr)
 		return;
 	lowPriorityChecks();
-	//manageBuildOrderQueue();
+	manageBuildOrderQueue();
 	QueueDeadBuildings();
     // TODO: if nothing is currently building, get a new goal from the strategy manager
     // TODO: triggers for game things like cloaked units etc
@@ -114,7 +114,6 @@ TryCreateResults* ProductionManager::TryCreate(const MetaType &type, CCTilePosit
 	hasTech = false;
 	hasProducer = false;
 	
-
 	const TypeData& typeData = m_bot.Data(type);
 	//if any required unit is satisfied;
 	if (typeData.requiredUnits.empty()) {

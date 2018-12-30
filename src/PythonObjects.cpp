@@ -89,17 +89,23 @@ BOOST_PYTHON_MODULE(micromachine)
 			ADD_READWRITE_ENTRY(TryCreateResults, m_hasSupply)
 			;
 
-
-	class_<CreateCommand> createcmd_cls("CreateCommand", init<unsigned int>());
+	class_<ProductionCommand, boost::noncopyable> pdccmd_cls("ProductionCommand", no_init);
+	class_<CreateCommand, bases<ProductionCommand>> createcmd_cls("CreateCommand", init<unsigned int>());
 		createcmd_cls.def(init<unsigned int, sc2::Point2DI>())
 			ADD_READWRITE_ENTRY(CreateCommand, unit_type)
 			ADD_READWRITE_ENTRY(CreateCommand, target_pos)
-			ADD_READWRITE_ENTRY(CreateCommand, result)
+			//ADD_READWRITE_ENTRY(CreateCommand, result)
+			//ADD_METHOD(CreateCommand, GetResult)
+			.def("GetResult", &CreateCommand::GetResult,
+			boost::python::return_value_policy<boost::python::reference_existing_object>())
 			;
-	class_<UpgradeCommand> upgradecmd_cls("UpgradeCommand", init<unsigned int>());
+	class_<UpgradeCommand, bases<ProductionCommand>> upgradecmd_cls("UpgradeCommand", init<unsigned int>());
 		upgradecmd_cls
 			ADD_READWRITE_ENTRY(UpgradeCommand, upgrade_type)
-			ADD_READWRITE_ENTRY(UpgradeCommand, result)
+			//ADD_READWRITE_ENTRY(UpgradeCommand, result)
+			//ADD_METHOD(UpgradeCommand, GetResult)
+			.def("GetResult", &UpgradeCommand::GetResult,
+			boost::python::return_value_policy<boost::python::reference_existing_object>())
 			;
     void (MicroMachine::*func_ptr)(RegionMoveCommand* command) = &MicroMachine::AddRegionMoveAttack;
 	class_<MicroMachine> mm_class("MicroMachine");

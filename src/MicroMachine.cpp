@@ -265,7 +265,6 @@ void MicroMachine::AddProductionCommand(ProductionCommand* command)
 		sc2::UnitTypeID m_unit_type = static_cast<CreateCommand*>(command)->unit_type;
 		UnitType unit_type(m_unit_type,bot);
 		m_type = MetaType(unit_type,bot);
-
 		results = bot.Commander().Production().TryCreate(m_type,static_cast<CreateCommand*>(command)->target_pos);
 	}
 	else if(command->getProductType() == ProductionCommand::ProductType::Upgrade)

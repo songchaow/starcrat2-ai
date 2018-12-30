@@ -10,6 +10,8 @@
 #include "sc2api/sc2_typeenums.h"
 #include "sc2api/sc2_common.h"
 #include "TryCreateResults.h"
+#include "boost/python.hpp"
+#include "boost/python/ptr.hpp"
 
 struct Command {};
 struct CombatCommand : Command
@@ -31,6 +33,8 @@ struct ProductionCommand : Command
     enum ProductType {Unit, Upgrade};
     virtual const ProductType getProductType() const = 0;
     TryCreateResults* result = nullptr;
+    //boost::python::pointer_wrapper<TryCreateResults*> GetResult() {return boost::python::ptr<TryCreateResults*>(result); }
+    TryCreateResults* GetResult() {return result;}
 };
 
 struct CreateCommand : ProductionCommand
