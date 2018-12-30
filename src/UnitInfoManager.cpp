@@ -290,10 +290,9 @@ size_t UnitInfoManager::getUnitTypeCount(CCPlayer player, UnitType type, bool co
     return count;
 }
 
-std::vector<Unit> & UnitInfoManager::getUnitTypeUnits(CCPlayer player, UnitType type, bool ignoreState) const
+std::vector<Unit>  UnitInfoManager::getUnitTypeUnits(CCPlayer player, UnitType type, bool ignoreState) const
 {
 	std::vector<Unit> unittypeUnits;
-
 	for (auto & unit : getUnits(player))
 	{
 		if ((!type.isValid() || type == unit.getType()) && unit.isAlive())
@@ -377,7 +376,6 @@ std::vector<Unit> & UnitInfoManager::getUnitTypeUnits(CCPlayer player, UnitType 
 		default:
 			return unittypeUnits;
 		}
-
 		for (auto & unit : getUnits(player))
 		{
 			if ((alternate == unit.getAPIUnitType()) && unit.isCompleted())

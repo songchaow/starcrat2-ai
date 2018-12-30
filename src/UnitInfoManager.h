@@ -32,7 +32,7 @@ public:
     const std::vector<Unit> & getUnits(CCPlayer player) const;
 
     size_t                  getUnitTypeCount(CCPlayer player, UnitType type, bool completed = true, bool ignoreState = false) const;
-	std::vector<Unit> &     getUnitTypeUnits(CCPlayer player, UnitType type, bool ignoreState = false) const;
+	std::vector<Unit>      getUnitTypeUnits(CCPlayer player, UnitType type, bool ignoreState = false) const;
     void                    getNearbyForce(std::vector<UnitInfo> & unitInfo, CCPosition p, int player, float radius) const;
 
     const std::map<Unit, UnitInfo> & getUnitInfoMap(CCPlayer player) const;
