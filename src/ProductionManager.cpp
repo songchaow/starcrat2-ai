@@ -106,6 +106,7 @@ TryCreateResults* ProductionManager::TryCreate(const MetaType &type, CCTilePosit
 	bool hasGas = false;
 	bool hasSupply = false;
 	bool requiringAddon = false;
+	bool fetchProducer = false;
 	UnitType addon_required;
 
 	result = false;
@@ -115,6 +116,8 @@ TryCreateResults* ProductionManager::TryCreate(const MetaType &type, CCTilePosit
 	hasProducer = false;
 	
 	const TypeData& typeData = m_bot.Data(type);
+	CCRace self_race = m_bot.GetPlayerRace(Players::Self);
+	
 	//if any required unit is satisfied;
 	if (typeData.requiredUnits.empty()) {
 		hasUnit = true;
@@ -128,14 +131,22 @@ TryCreateResults* ProductionManager::TryCreate(const MetaType &type, CCTilePosit
 				requiringAddon = true;
 				if (m_bot.UnitInfo().getUnitTypeCount(Players::Self, required, true, true) <= 0) {
 					addon_required = required;
+					hasUnit = false;
+					break; // applies only to Terran
 				}
+				else hasUnit = true;
 			}
 			else {
 				if (m_bot.UnitInfo().getUnitTypeCount(Players::Self, required, true, true) > 0) {
 					hasUnit = true;
 					units_required.clear();
-					break;
-				}
+					// if we are Zerg, dependency is satisfied now.
+					if(self_race == CCRace::Zerg)
+					    break;
+					// if we are Terran, we have to continue check if all dependencies are met.
+					else if(self_race == CCRace::Terran)
+					    continue;
+				}	
 				else if (m_bot.Buildings().isBeingBuilt(required)) {
 					hasUnit = false;
 				}
@@ -147,8 +158,15 @@ TryCreateResults* ProductionManager::TryCreate(const MetaType &type, CCTilePosit
 		}
 	}
 	if (units_required.size() != typeData.requiredUnits.size() - (requiringAddon ? 1:0)) {
-		units_required.clear();
+		if(self_race == CCRace::Zerg)
+		{
+			units_required.clear();
+			hasUnit = true;
+		}
 	}
+	if(self_race == CCRace::Terran)
+		if(units_required.size() > 0)
+			hasUnit = false;
 	if (addon_required.isValid()) {
 		units_required.push_back(addon_required);
 	}
@@ -198,6 +216,8 @@ TryCreateResults* ProductionManager::TryCreate(const MetaType &type, CCTilePosit
 				}
 			}
 			if (hasProducer && !busy) {
+				fetchProducer = true;
+				std::cout<<"we think it's OK, check again."<< std::endl;
 				if (targetPos == CCTilePosition{ 0,0 }) {
 					producer = getProducer(type);
 				}
@@ -208,7 +228,7 @@ TryCreateResults* ProductionManager::TryCreate(const MetaType &type, CCTilePosit
 			}
 		}
 	}
-	if (producer.isValid() == 0) {
+	if (fetchProducer && producer.isValid() == 0) {
 		hasProducer = false;
 	}
 	if (!hasProducer) {
