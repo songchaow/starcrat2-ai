@@ -44,6 +44,9 @@ while(not ended):
            print("Create Siege Tank succeeded.")
        else:
            print("Create Siege Tank failed. Need...")
+           print("busy:"+str(result.m_busy)+" producer:"+str(result.m_hasProducer)+
+                   " mine:"+str(result.m_hasMineral)+" gas:"+str(result.m_hasGas)+
+                   " supply:"+str(result.m_hasSupply)+"depUnit:"+str(result.m_hasUnit))
    else:
        print("No result generated.")
    
