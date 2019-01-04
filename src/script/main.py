@@ -28,15 +28,17 @@ i = 0
 mm_obj.Update()
 buff = mm_obj.GetSerializedObservation()
 obs = sc2api_pb2.Observation()
-obs.ParseFromString(buff)
-print(str(obs))
+# obs.ParseFromString(buff)
+# print(str(obs))
+ended = False
+res = micromachine.GameResult.Undecided
+while(not ended):
+   i = i + 1
+   ended, res = mm_obj.Update()
+   print("Frame: "+str(i))
+   command = micromachine.RegionMoveCommand(
+       micromachine.RegionID.REGION_A,micromachine.RegionID.REGION_B)
 
-#while(True):
-#    i = i + 1
-#    mm_obj.Update()
-#    print("Frame: "+str(i))
-#    command = micromachine.RegionMoveCommand(
-#        micromachine.RegionID.REGION_A,micromachine.RegionID.REGION_B)
-#
-#    mm_obj.AddRegionMoveCommand(command)
+   mm_obj.AddRegionMoveCommand(command)
+print("Result: "+str(res))
 pass

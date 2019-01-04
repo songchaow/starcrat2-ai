@@ -38,7 +38,7 @@ struct CreateCommand : ProductionCommand
     virtual const ProductType getProductType() const override {return ProductType::Unit;}
     CreateCommand(unsigned int unit_type) : unit_type(unit_type) {}
     CreateCommand(unsigned int unit_type, sc2::Point2DI target_pos) : unit_type(unit_type), target_pos(target_pos) {}
-    ~CreateCommand() {delete result;}
+    ~CreateCommand() {if(result) delete result;}
     /*sc2::UNIT_TYPEID*/ unsigned int unit_type;
     sc2::Point2DI target_pos = {0, 0};
 
@@ -48,6 +48,6 @@ struct UpgradeCommand : ProductionCommand
 {
     virtual const ProductType getProductType() const override {return ProductType::Upgrade;}
     UpgradeCommand(unsigned int upgrade_type) : upgrade_type(upgrade_type) {}
-    ~UpgradeCommand() {delete result;}
+    ~UpgradeCommand() {if(result) delete result;}
     /*sc2::UPGRADE_ID*/ unsigned int upgrade_type;
 };

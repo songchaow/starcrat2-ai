@@ -9,6 +9,7 @@
 #include <chrono>
 #include <iostream>
 #include <fstream>
+#include <vector>
 #include "StackWalker.h"
 #include "MicroMachine.h"
 #include "Communicate.h"
@@ -20,6 +21,7 @@
 #include "sc2utils/sc2_manage_process.h"
 #include "sc2api/sc2_api.h"
 #include "sc2api/sc2_typeenums.h"
+#include "sc2api/sc2_gametypes.h"
 #include <string>
 
 #ifdef _WIN32
@@ -99,8 +101,9 @@ int MicroMachine::Initialize(boost::python::list argv_list)
 	bool PlayVsItSelf = false;
 	bool PlayerOneIsHuman = false;
 	bool render = false; // TODO: read from config file
-
-
+	bool remote = false;
+	std::string remote_addr;
+	int remote_comm_port = 0;
 
 
 	if (j.count("SC2API") && j["SC2API"].is_object())
@@ -115,6 +118,12 @@ int MicroMachine::Initialize(boost::python::list argv_list)
 		JSONTools::ReadBool("PlayAsHuman", info, PlayerOneIsHuman);
 		JSONTools::ReadBool("PlayVsItSelf", info, PlayVsItSelf);
 		JSONTools::ReadBool("EnableRenderer", info, render);
+		JSONTools::ReadBool("Remote", info, remote);
+		if(remote)
+		{
+		    JSONTools::ReadString("RemoteAddress", info, remote_addr);
+		    JSONTools::ReadInt("CommPort", info, remote_comm_port);
+		}
 		bot.enable_render = render;
 	}
 	else
@@ -193,7 +202,13 @@ int MicroMachine::Initialize(boost::python::list argv_list)
 		});
 
 	// Start the game.
-	coordinator.LaunchStarcraft();
+	if(remote)
+	{
+		std::cout<<"Launching SC2 from remote..."<<std::endl;
+		coordinator.RemoteLaunchStarcraft(remote_addr, remote_comm_port);
+	}
+	else
+		coordinator.LaunchStarcraft();
 	coordinator.StartGame(mapString);
 	auto now = std::chrono::system_clock::now();
 	// Step forward the game simulation.
@@ -206,10 +221,28 @@ int MicroMachine::Initialize(boost::python::list argv_list)
 	return 0;
 }
 
-void MicroMachine::Update()
+boost::python::list MicroMachine::Update()
 {
-	std::cout << "Dbg msg" << std::endl;
 	coordinator.Update();
+	// get game results if game ends
+	bool ended = coordinator.AllGamesEnded();
+	auto result = GetOurResult();
+	boost::python::list ret_val;
+	ret_val.append(ended);
+	ret_val.append(result);
+	return ret_val; // true if game ends
+}
+
+sc2::GameResult MicroMachine::GetOurResult()
+{
+	auto ourID = bot.Observation()->GetPlayerID();
+	const std::vector<sc2::PlayerResult> &results = bot.Observation()->GetResults();
+	for(auto &result : results)
+	{
+		if(result.player_id == ourID)
+			return result.result;
+	}
+	return sc2::GameResult::Undecided;
 }
 
 void MicroMachine::AddRegionMoveAttack(RegionID source, RegionID target)

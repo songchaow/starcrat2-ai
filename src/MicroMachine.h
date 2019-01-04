@@ -5,6 +5,7 @@
 #ifdef SC2API
 #include "sc2utils/sc2_manage_process.h"
 #include "sc2api/sc2_api.h"
+#include "sc2api/sc2_gametypes.h"
 #include <string>
 #include <boost/python.hpp>
 
@@ -35,7 +36,8 @@ public:
         sc2::PlayerSetup otherPlayer;
         sc2::PlayerSetup spectatingPlayer;
 	int Initialize(boost::python::list argv_list);
-	void Update();
+	boost::python::list Update();
+	sc2::GameResult GetOurResult();
 	int mmain();
 	// Commands to C++-end
 	void AddRegionMoveAttack(RegionID source, RegionID target);

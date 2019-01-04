@@ -45,6 +45,12 @@ BOOST_PYTHON_MODULE(micromachine)
 			//ADD_READWRITE_ENTRY(sc2::Unit, unit_type)
 			;
 	}
+	enum_<sc2::GameResult>("GameResult")
+		ADD_ENUM_ENTRY(sc2::GameResult, Win)
+		ADD_ENUM_ENTRY(sc2::GameResult, Loss)
+		ADD_ENUM_ENTRY(sc2::GameResult, Tie)
+		ADD_ENUM_ENTRY(sc2::GameResult, Undecided)
+		;
 	
 	// Commands
 	//class_<Command> command_cls("Command");
@@ -90,6 +96,11 @@ BOOST_PYTHON_MODULE(micromachine)
 			ADD_READWRITE_ENTRY(CreateCommand, target_pos)
 			ADD_READWRITE_ENTRY(CreateCommand, result)
 			;
+	class_<UpgradeCommand> upgradecmd_cls("UpgradeCommand", init<unsigned int>());
+		upgradecmd_cls
+			ADD_READWRITE_ENTRY(UpgradeCommand, upgrade_type)
+			ADD_READWRITE_ENTRY(UpgradeCommand, result)
+			;
     void (MicroMachine::*func_ptr)(RegionMoveCommand* command) = &MicroMachine::AddRegionMoveAttack;
 	class_<MicroMachine> mm_class("MicroMachine");
         mm_class
@@ -97,6 +108,7 @@ BOOST_PYTHON_MODULE(micromachine)
             ADD_METHOD(MicroMachine,Update)
             .def("AddRegionMoveCommand",func_ptr)
 			ADD_METHOD(MicroMachine,GetSerializedObservation)
+			ADD_METHOD(MicroMachine,AddProductionCommand)
             ;	
 
 };

@@ -99,4 +99,3 @@ class UPGRADE_ID(enum.IntEnum):
         SMARTSERVOS = 289
         RAPIDFIRELAUNCHERS = 291
         ENHANCEDMUNITIONS = 292
-    }
